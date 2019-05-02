@@ -1,11 +1,10 @@
 package com.sinch.rcssdk.chatbot;
 
-import com.sinch.rcssdk.chatflow.ChatBot;
-import com.sinch.rcssdk.chatflow.RCSConfigureType;
+import com.sinch.rcssdk.rcs.chatflow.ChatBot;
+import com.sinch.rcssdk.rcs.chatflow.RCSConfigureType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import sun.management.Agent;
 
 public class ChatBotTest {
     private ChatBot chatBot;

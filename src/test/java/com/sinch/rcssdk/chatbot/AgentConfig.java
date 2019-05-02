@@ -1,7 +1,7 @@
 package com.sinch.rcssdk.chatbot;
 
-import com.sinch.rcssdk.chatflow.AgentConfiguration;
-import com.sinch.rcssdk.chatflow.RCSConfigureType;
+import com.sinch.rcssdk.rcs.chatflow.AgentConfiguration;
+import com.sinch.rcssdk.rcs.chatflow.RCSConfigureType;
 
 public class AgentConfig extends AgentConfiguration {
     public AgentConfig(RCSConfigureType type) {
