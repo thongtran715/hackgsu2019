@@ -1,4 +1,4 @@
-package com.sinch.rcssdk.chatflow;
+package com.sinch.rcssdk.rcs.chatflow;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -10,7 +10,9 @@ import org.apache.http.util.EntityUtils;
 
 
 public abstract class AgentConfiguration {
-
+    /**
+     * Access to the bot environment
+     */
     protected String TOKEN;
     protected String AGENT_ID;
     private String CONTENT_HEADER;

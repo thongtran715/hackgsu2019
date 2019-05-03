@@ -1,5 +1,8 @@
-package com.sinch.rcssdk.chatflow;
+package com.sinch.rcssdk.rcs.chatflow;
 
+import com.sinch.rcssdk.rcs.exceptions.CarouselsSizeException;
+import com.sinch.rcssdk.rcs.exceptions.MissingRichCardContentsException;
+import com.sinch.rcssdk.rcs.exceptions.MissingWidthTypeException;
 import com.sinch.rcssdk.rcs.message.component.postback.PostBack;
 import com.sinch.rcssdk.rcs.message.component.richcard.FileInfo;
 import com.sinch.rcssdk.rcs.message.component.richcard.RichCardContent;
@@ -17,11 +20,11 @@ import java.util.List;
 import java.util.UUID;
 
 public class ChatBot {
-    // Sending blank message
+
     private TextMessage textMessage;
-    // Sending Carousel message
+
     private CarouselRichCardMessage carouselRichCardMessage;
-    // Sending Standalone message
+
     private StandaloneRichCardMessage standaloneRichCardMessage;
 
     private FileMessage fileMessage;
@@ -30,9 +33,13 @@ public class ChatBot {
 
     private AgentConfiguration agentConfiguration;
 
-    private List<Suggestion> sug;
+    private List<Suggestion> suggestions;
 
     private AgentMessage.Supplier supplier;
+
+    private List<RichCardContent> richCardContents;
+
+    private WidthType widthType;
 
     public ChatBot(AgentConfiguration agentConfiguration) {
         textMessage = new TextMessage();
@@ -41,7 +48,7 @@ public class ChatBot {
         agentMessage = new AgentMessage();
         this.agentConfiguration = agentConfiguration;
         fileMessage = new FileMessage();
-        sug = new ArrayList<>();
+        suggestions = new ArrayList<>();
     }
 
     /**
@@ -99,7 +106,7 @@ public class ChatBot {
                 sug.add(actions.get(i));
             }
         }
-        this.sug = sug;
+        this.suggestions = sug;
         return sug;
     }
 
@@ -110,10 +117,14 @@ public class ChatBot {
      * @param richCardContents
      * @return
      */
-    public List<RichCardContent> sendCarousel(String phoneNumber, List<RichCardContent> richCardContents){
+    public List<RichCardContent> sendCarousel(String phoneNumber, List<RichCardContent> richCardContents) throws CarouselsSizeException {
+        int size = richCardContents.size();
+        if (size < 2 || size > 10){
+            throw new CarouselsSizeException(size);
+        }
         carouselRichCardMessage.setContents(richCardContents);
         carouselRichCardMessage.setWidth(WidthType.MEDIUM);
-        setAgentMessage(phoneNumber, carouselRichCardMessage, this.sug, this.supplier);
+        setAgentMessage(phoneNumber, carouselRichCardMessage, this.suggestions, this.supplier);
         sendPayLoad(agentMessage);
         return richCardContents;
     }
@@ -128,11 +139,31 @@ public class ChatBot {
     public List<RichCardContent> sendCarousel(String phoneNumber, List<RichCardContent> richCardContents, WidthType widthType){
         carouselRichCardMessage.setContents(richCardContents);
         carouselRichCardMessage.setWidth(widthType);
-        setAgentMessage(phoneNumber, carouselRichCardMessage, this.sug, this.supplier);
+        setAgentMessage(phoneNumber, carouselRichCardMessage, this.suggestions, this.supplier);
         sendPayLoad(agentMessage);
         return richCardContents;
     }
 
+    /**
+     *
+     * @param phoneNumber
+     * @return
+     * @throws MissingRichCardContentsException
+     * @throws MissingWidthTypeException
+     */
+    public List<RichCardContent> sendCarousel(String phoneNumber) throws MissingRichCardContentsException, MissingWidthTypeException {
+        if (this.richCardContents == null){
+            throw new MissingRichCardContentsException();
+        }
+        if (this.widthType == null){
+            throw new MissingWidthTypeException();
+        }
+        this.carouselRichCardMessage.setContents(this.richCardContents);
+        this.carouselRichCardMessage.setWidth(this.widthType);
+        this.setAgentMessage(phoneNumber, carouselRichCardMessage, this.suggestions, this.supplier);
+        sendPayLoad(agentMessage);
+        return this.richCardContents;
+    }
 
     /**
      *
@@ -145,18 +176,9 @@ public class ChatBot {
         standaloneRichCardMessage.setContent(richCardContent);
         standaloneRichCardMessage.setOrientation(orientationType);
         standaloneRichCardMessage.setThumbnail_alignment(thumbnailAlignmentType);
-        setAgentMessage(phoneNumber, standaloneRichCardMessage, this.sug, this.supplier);
+        setAgentMessage(phoneNumber, standaloneRichCardMessage, this.suggestions, this.supplier);
         sendPayLoad(agentMessage);
         return richCardContent;
-    }
-
-
-    /**
-     *
-     * @param supplier
-     */
-    public void setSupplier(AgentMessage.Supplier supplier) {
-        this.supplier = supplier;
     }
 
     /**
@@ -167,7 +189,7 @@ public class ChatBot {
      */
     public  TextMessage sendTextMessage(String phoneNumber, String text){
         this.textMessage.setText(text);
-        setAgentMessage(phoneNumber, this.textMessage, this.sug, this.supplier);
+        setAgentMessage(phoneNumber, this.textMessage, this.suggestions, this.supplier);
         sendPayLoad(agentMessage);
         return this.textMessage;
     }
@@ -182,7 +204,7 @@ public class ChatBot {
         FileInfo fileInfo = new FileInfo("image/png", 12345, "picture.png", imageUrl) ;
         this.fileMessage.setThumbnail(fileInfo);
         this.fileMessage.setFile(fileInfo);
-        setAgentMessage(phoneNumber, this.fileMessage, this.sug, this.supplier);
+        setAgentMessage(phoneNumber, this.fileMessage, this.suggestions, this.supplier);
         sendPayLoad(agentMessage);
         return this.fileMessage;
     }
@@ -204,6 +226,100 @@ public class ChatBot {
         return this.fileMessage;
     }
 
+
+    /**
+     * GETTER
+     */
+    public TextMessage getTextMessage() {
+        return textMessage;
+    }
+
+    public CarouselRichCardMessage getCarouselRichCardMessage() {
+        return carouselRichCardMessage;
+    }
+
+    public StandaloneRichCardMessage getStandaloneRichCardMessage() {
+        return standaloneRichCardMessage;
+    }
+
+    public FileMessage getFileMessage() {
+        return fileMessage;
+    }
+
+    public AgentMessage getAgentMessage() {
+        return agentMessage;
+    }
+
+    public AgentConfiguration getAgentConfiguration() {
+        return agentConfiguration;
+    }
+
+    public List<Suggestion> getSuggestions() {
+        return suggestions;
+    }
+
+    public AgentMessage.Supplier getSupplier() {
+        return supplier;
+    }
+
+    public List<RichCardContent> getRichCardContents() {
+        return richCardContents;
+    }
+
+    public WidthType getWidthType() {
+        return widthType;
+    }
+
+    /**
+     * SETTER
+     */
+    public void setTextMessage(TextMessage textMessage) {
+        this.textMessage = textMessage;
+    }
+
+    public void setCarouselRichCardMessage(CarouselRichCardMessage carouselRichCardMessage) {
+        this.carouselRichCardMessage = carouselRichCardMessage;
+    }
+
+    public void setStandaloneRichCardMessage(StandaloneRichCardMessage standaloneRichCardMessage) {
+        this.standaloneRichCardMessage = standaloneRichCardMessage;
+    }
+
+    public void setFileMessage(FileMessage fileMessage) {
+        this.fileMessage = fileMessage;
+    }
+
+    public void setAgentMessage(AgentMessage agentMessage) {
+        this.agentMessage = agentMessage;
+    }
+
+    public void setAgentConfiguration(AgentConfiguration agentConfiguration) {
+        this.agentConfiguration = agentConfiguration;
+    }
+
+    public void setSuggestions(List<Suggestion> suggestions) {
+        this.suggestions = suggestions;
+    }
+
+    public void setRichCardContents(List<RichCardContent> richCardContents) {
+        this.richCardContents = richCardContents;
+    }
+
+    public void setWidthType(WidthType widthType) {
+        this.widthType = widthType;
+    }
+
+    public void setSupplier(AgentMessage.Supplier supplier) {
+        this.supplier = supplier;
+    }
+
+    /**
+     * PRIVATE METHODS
+     */
+    private boolean isRichCardContentsValid(List<RichCardContent> richCardContents) {
+        int size = richCardContents.size();
+        return size < 2 || size > 10;
+    }
 
 
 }
