@@ -1,8 +1,12 @@
 package com.sinch.rcssdk.rcs.message.component.richcard;
 
-public class FileInfo {
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-    private Mime_type mime_type;
+public class FileInfo {
+    @JsonIgnore
+    private Mime_type mime;
+
+    private String mime_type;
     private long file_size;
     private String file_name;
     private String file_uri;
@@ -14,14 +18,24 @@ public class FileInfo {
         this.file_size = file_size;
         this.file_name = file_name;
         this.file_uri = file_uri;
-        this.mime_type = mime_type;
+        this.mime = mime_type;
+        this.mime_type = mime_type.toString();
     }
 
-    public Mime_type getMime_type() {
+    public Mime_type getMime() {
+        return mime;
+    }
+
+    public void setMime(Mime_type mime_type) {
+        this.mime = mime_type;
+        this.mime_type = mime_type.toString();
+    }
+
+    public String getMime_type() {
         return mime_type;
     }
 
-    public void setMime_type(Mime_type mime_type) {
+    public void setMime_type(String mime_type) {
         this.mime_type = mime_type;
     }
 

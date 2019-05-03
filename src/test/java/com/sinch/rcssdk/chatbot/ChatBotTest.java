@@ -6,8 +6,10 @@ import com.sinch.rcssdk.rcs.exceptions.MissingWidthTypeException;
 import com.sinch.rcssdk.rcs.message.component.richcard.FileInfo;
 import com.sinch.rcssdk.rcs.message.component.richcard.RichCardContent;
 import com.sinch.rcssdk.rcs.message.component.richcard.RichCardMedia;
+import com.sinch.rcssdk.rcs.message.enums.MessageType;
 import com.sinch.rcssdk.rcs.message.enums.WidthType;
 import com.sinch.rcssdk.rcs.message.messagetype.AgentMessage;
+import com.sinch.rcssdk.rcs.message.messagetype.TextMessage;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,6 +84,15 @@ public class ChatBotTest {
         assertTrue(isValid);
     }
 
+    @Test
+    public void testSendTextMessage() {
+        TextMessage textMessage = chatBot.sendTextMessage("+14047691562", "Hello from Sinch");
+        assertEquals(textMessage.getText(), "Hello from Sinch");
+        assertEquals(textMessage.getType(), MessageType.text);
+    }
 
+    @Test
+    public void testSendImageMessage() {
 
+    }
 }

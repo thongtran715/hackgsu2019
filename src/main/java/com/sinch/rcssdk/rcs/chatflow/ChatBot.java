@@ -62,6 +62,7 @@ public class ChatBot {
     private void sendPayLoad(AgentMessage agentMessage) {
         agentMessage.setMessage_id(UUID.randomUUID().toString());
         agentConfiguration.post(agentMessage.toString());
+        System.out.println(agentMessage.toString());
     }
 
     /**
@@ -206,7 +207,7 @@ public class ChatBot {
      * @param phoneNumber MSIDN Number
      * @return
      */
-    public FileMessage sendImage(String imageUrl, String phoneNumber) throws IOException, FileSizeExceedLimitException {
+    public FileMessage sendImage(String phoneNumber, String imageUrl) throws IOException, FileSizeExceedLimitException {
 
         // Check if the size is valid.
         long size = Util.getFileSize(imageUrl);
@@ -220,7 +221,6 @@ public class ChatBot {
         setAgentMessage(phoneNumber, this.fileMessage, this.suggestions, this.supplier);
         sendPayLoad(agentMessage);
         return this.fileMessage;
-
     }
 
     /**
@@ -394,7 +394,7 @@ public class ChatBot {
     public boolean isValidRichCardContent(RichCardContent richCardContent) throws IOException{
         long size_1 = Util.getFileSize(richCardContent.getMedia().getFile().getFile_uri());
         long size_2 = Util.getFileSize(richCardContent.getMedia().getThumbnail().getFile_uri());
-        if (!isFileSizeValidHelper(size_1,richCardContent.getMedia().getFile().getMime_type() ) || !isRichCardTitleAndDescriptionValid(richCardContent) || !isFileSizeValidHelper(size_2, richCardContent.getMedia().getThumbnail().getMime_type())){
+        if (!isFileSizeValidHelper(size_1,richCardContent.getMedia().getFile().getMime() ) || !isRichCardTitleAndDescriptionValid(richCardContent) || !isFileSizeValidHelper(size_2, richCardContent.getMedia().getThumbnail().getMime())){
             return false;
         }
         return true;
