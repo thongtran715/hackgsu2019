@@ -1,35 +1,39 @@
 package com.sinch.rcssdk.rcs.message.component.richcard;
 
 public class FileInfo {
-    private String mime_type;
-    private int file_size;
+
+    private Mime_type mime_type;
+    private long file_size;
     private String file_name;
     private String file_uri;
-
     public FileInfo() {
 
     }
 
-    public FileInfo(String mime_type, int file_size, String file_name, String file_uri) {
-        this.mime_type = mime_type;
+    public FileInfo(Mime_type mime_type, long file_size, String file_name, String file_uri) {
         this.file_size = file_size;
         this.file_name = file_name;
         this.file_uri = file_uri;
-    }
-
-    public String getMime_type() {
-        return mime_type;
-    }
-
-    public void setMime_type(String mime_type) {
         this.mime_type = mime_type;
     }
 
-    public int getFile_size() {
+    public Mime_type getMime_type() {
+        return mime_type;
+    }
+
+    public void setMime_type(Mime_type mime_type) {
+        this.mime_type = mime_type;
+    }
+
+    public long getFile_size() {
         return file_size;
     }
 
     public void setFile_size(int file_size) {
+        this.file_size = file_size;
+    }
+
+    public void setFile_size(long file_size) {
         this.file_size = file_size;
     }
 
@@ -49,4 +53,17 @@ public class FileInfo {
         this.file_uri = file_uri;
     }
 
+    public enum Mime_type {
+        VIDEO_MP4("video/mp4"), IMAGE_PNG("image/png"), IMAGE_JPEG("image/jpeg");
+        private String supply;
+
+        Mime_type(String supply) {
+            this.supply = supply;
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf(supply);
+        }
+    }
 }

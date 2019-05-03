@@ -8,11 +8,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 
-
 public abstract class AgentConfiguration {
-    /**
-     * Access to the bot environment
-     */
+
     protected String TOKEN;
     protected String AGENT_ID;
     private String CONTENT_HEADER;
@@ -23,22 +20,13 @@ public abstract class AgentConfiguration {
 
     private RCSConfigureType type;
 
-    /**
-     *
-     * @param type
-     * @param TOKEN
-     * @param AGENT_ID
-     */
+
     public AgentConfiguration(RCSConfigureType type, String TOKEN, String AGENT_ID) {
         this(type);
         this.TOKEN = TOKEN;
         this.AGENT_ID = AGENT_ID;
     }
 
-    /**
-     *
-     * @param type
-     */
     public AgentConfiguration(RCSConfigureType type) {
         this.type = type;
     }
@@ -51,11 +39,6 @@ public abstract class AgentConfiguration {
         this.RCS_EVENT_URL = BASE_API_URL + "/events";
     }
 
-    /**
-     *
-     * @param payload
-     * @return
-     */
     public HttpResponse post(String payload) {
         setUpBase();
         if (this.type == RCSConfigureType.api) {
@@ -66,11 +49,6 @@ public abstract class AgentConfiguration {
         return null;
     }
 
-    /**
-     *
-     * @param payload
-     * @return
-     */
     private HttpResponse postRequestApi(String payload) {
         try {
             return postRequest(payload, RCS_API_URL);
@@ -87,13 +65,6 @@ public abstract class AgentConfiguration {
         }
     }
 
-    /**
-     *
-     * @param payload
-     * @param url
-     * @return
-     * @throws Exception
-     */
     private HttpResponse postRequest(String payload, String url) throws Exception {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost request = new HttpPost(url);
