@@ -20,7 +20,7 @@ Otherwise, feel free to use our sample bot which is already integrating in the l
 ## Configuration 
 You will need to tell our library which bot you are using including the Agent ID and Token ID. <br />
 Let's create a configuration class which is called YourBotConfiguration and extends it from ChatAgentConfiguration
-```$xslt
+```javascript
 public class YourBotConfiguration extends AgentConfiguration {
 
     public YourBotConfiguration(RCSConfigureType type) {
@@ -33,7 +33,7 @@ public class YourBotConfiguration extends AgentConfiguration {
 <br/>
 Next step is to create an instance from ChatBot class. <br/>
 
-```
+```javascript
       ChatBot chatBot = new ChatBot(new YourBotConfiguration(RCSConfigureType.api));
       // Optional - Setting up your destinated supplier. 
       chatBot.setSupplier(AgentMessage.Supplier.MAAP_SAMSUNG);
@@ -56,7 +56,7 @@ That is it for the configuration. Now let's jump to how we can use this ChatBot 
 
 Sending text message is simple. You will just need to have a phone number and the text you want to send 
 
-```$xslt
+```javascript
   chatBot.sendTextMessage("+14047691562", "Hello from Sinch");
 ```
 
@@ -66,7 +66,7 @@ Sending text message is simple. You will just need to have a phone number and th
 
 Sending image message requires an URI to host the file and it has mime type of png or jpeg
 
-```$xslt
+```javascript
         try {
             chatBot.sendImage( "+14047691562", "https://s3.amazonaws.com/sketchers-chatbot/Revision_1/Kid/Kids+Boys'+Sport/Boys'+Kinectors+Thermovolt.jpg");
         }catch (FileSizeExceedLimitException e){
@@ -81,7 +81,7 @@ Sending image message requires an URI to host the file and it has mime type of p
 <a name="videoMessage"></a>
 ## Video Message
 
-```$xslt
+```javascript
             String video = "https://s3.amazonaws.com/sketchers-chatbot/Video/Mark+Nason+Dress+Knit+Commercial.mp4";
             String pig = "https://s3.amazonaws.com/sketchers-chatbot/Video/Picture1.png";
             try {
@@ -108,7 +108,7 @@ Standalone Rich Card has the following properties
 
 Depend on the use cases, you can play around different type of Orientation and Thumbnail Alignment to fit your goal. However, the native software in the device will not scale the file properly for different type of orientation and thumbnail alignment. You should consider to design specific file for specific Rich Card. 
 
-```$xslt
+```javascript
             String video = "https://s3.amazonaws.com/sketchers-chatbot/Video/Mark+Nason+Dress+Knit+Commercial.mp4";
             String pig = "https://s3.amazonaws.com/sketchers-chatbot/Video/Picture1.png";
             
@@ -148,7 +148,7 @@ Suggested Reply is used in case where the bot is trying to ask for the custom re
 Suggested Reply has the type of reply, display text, and post-back data. <br/>
 In this library, we use Pair<String, String> with the key is display text and value is post_back data.
 
-```$xslt
+```javascript
             ChatBot chatBot = new ChatBot(new YourBotConfiguration(RCSConfigureType.api));
             chatBot.setSupplier(AgentMessage.Supplier.MAAP_SAMSUNG);
             
@@ -180,7 +180,7 @@ Suggested Actions has the type of action, display text , post back and also it e
 <a name="dialPhoneNumber"></a>
 #### Dial Phone Number 
 - Phone number: Regex pattern ^(?:00|+|)[1-9][0-9]{8,16}$,  E.164 format 
-```$xslt
+```javascript
             // List of actions
             List<SuggestedAction>  actions = new ArrayList<>();
             
@@ -210,7 +210,7 @@ Show location instance contains the following attributes <br />
 - Longitude : It ranges between [-180, 180]
 - Label : Optional label to be shown on the map at the given lat/long. Max length is 1000 characters
 
-```$xslt
+```javascript
             // List of actions
             List<SuggestedAction>  actions = new ArrayList<>();
 
@@ -238,7 +238,7 @@ Show location instance contains the following attributes <br />
 
 With Request location push, we are asking users to share their location. Once, they share the location, you can see their latitude and longitude in the callback url in which Sinch has forwarded it.
 
-```$xslt
+```javascript
             // List of actions
             List<SuggestedAction>  actions = new ArrayList<>();
 
@@ -260,7 +260,7 @@ With Request location push, we are asking users to share their location. Once, t
 <a name="openURL"></a>
 #### Open URL
 
-```$xslt
+```javascript
             // List of actions
             List<SuggestedAction>  actions = new ArrayList<>();
 
@@ -290,7 +290,7 @@ Create calendar event consists of
 - Title: Event title. It ranges from 1 to 1024 characters
 - Description: Event description. Tt ranges from 1 to 1024 characters
 
-```$xslt
+```javascript
             // List of actions
             List<SuggestedAction>  actions = new ArrayList<>();
 
@@ -338,7 +338,7 @@ Agent Event has the following feature
 Agent composing will enable the ability for the bot to have the composing indication , and so increasing user-experience
 
 - Phone Number : Telling the bot which phone number it is sending the composing event to. Must not be null
-```$xslt
+```javascript
             chatBot.agentComposing("+14047691562");
 ```
 
@@ -352,7 +352,7 @@ Agent Read Event will enable the bot to show the Read indication of the message 
 
 We obtain the Message ID via the call-back URL because everything interaction between end-user and the bot will go through the call-back URL. 
 
-```$xslt
+```javascript
   chatBot.agentReadEvent("MESSAGEID","+14047691562" );
 ```
 
