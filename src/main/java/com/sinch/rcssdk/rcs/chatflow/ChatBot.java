@@ -4,12 +4,17 @@ import com.sinch.rcssdk.rcs.exceptions.CarouselsSizeException;
 import com.sinch.rcssdk.rcs.exceptions.FileSizeExceedLimitException;
 import com.sinch.rcssdk.rcs.exceptions.MissingRichCardContentsException;
 import com.sinch.rcssdk.rcs.exceptions.MissingWidthTypeException;
+import com.sinch.rcssdk.rcs.message.component.action.Action;
+import com.sinch.rcssdk.rcs.message.component.action.DialPhoneNumber;
+import com.sinch.rcssdk.rcs.message.component.action.OpenUrl;
+import com.sinch.rcssdk.rcs.message.component.action.ShowLocation;
 import com.sinch.rcssdk.rcs.message.component.postback.PostBack;
 import com.sinch.rcssdk.rcs.message.component.richcard.FileInfo;
 import com.sinch.rcssdk.rcs.message.component.richcard.RichCardContent;
 import com.sinch.rcssdk.rcs.message.component.suggestions.SuggestedAction;
 import com.sinch.rcssdk.rcs.message.component.suggestions.SuggestedReply;
 import com.sinch.rcssdk.rcs.message.component.suggestions.Suggestion;
+import com.sinch.rcssdk.rcs.message.enums.ActionType;
 import com.sinch.rcssdk.rcs.message.enums.OrientationType;
 import com.sinch.rcssdk.rcs.message.enums.ThumbnailAlignmentType;
 import com.sinch.rcssdk.rcs.message.enums.WidthType;
@@ -93,22 +98,51 @@ public class ChatBot {
      * @param actions  List of suggestions that can go with particular message. Suggested Actions
      * @return
      */
-    private List<Suggestion> setSuggestions(List<Pair<String, String>> suggestions, List<SuggestedAction> actions) {
-        List<Suggestion> sug = new ArrayList<>();
+    public List<Suggestion> setSuggestions(List<Pair<String, String>> suggestions, List<SuggestedAction> actions) throws IOException{
         if (suggestions != null) {
+            if (suggestions.size() > 11 ){
+                throw new IOException("Exceed the size of suggestion chip sets. It has to be 11 units");
+            }
             for (int i = 0; i < suggestions.size(); ++i) {
                 Pair<String, String> pair = suggestions.get(i);
-                sug.add(new SuggestedReply(pair.getKey(), new PostBack(pair.getValue())));
+                int title = pair.getKey().length();
+                if (title > 25) {
+                    throw new IOException("Display text exceed maximum length. It has to be 25 characters");
+                }
+                this.suggestions.add(new SuggestedReply(pair.getKey(), new PostBack(pair.getValue())));
             }
         }
         if (actions != null) {
+
             for (int i = 0; i < actions.size(); ++i) {
-                sug.add(actions.get(i));
+                if (actions.get(i).getDisplay_text().length() > 25){
+                    throw new IOException("Display text exceed maximum length. It has to be 25 characters");
+                }
+                checkSuggestedActionsValid(actions.get(i));
+                this.suggestions.add(actions.get(i));
             }
         }
-        this.suggestions = sug;
-        return sug;
+        return  this.suggestions;
     }
+
+    /**
+     *
+     * @param sugg Suggested Reply actions
+     * @return
+     */
+    public List<Suggestion> setSuggestedReply(List<Pair<String, String>> sugg) throws IOException{
+        return this.setSuggestions(sugg ,null);
+    }
+
+    /**
+     *
+     * @param actions Suggested Actions
+     * @return
+     */
+    public List<Suggestion>  setSuggestedActions(List<SuggestedAction> actions) throws IOException{
+            return this.setSuggestions(null, actions);
+    }
+
 
     /**
      * Default Width Type will be MEDIUM
@@ -307,10 +341,6 @@ public class ChatBot {
         return suggestions;
     }
 
-    public void setSuggestions(List<Suggestion> suggestions) {
-        this.suggestions = suggestions;
-    }
-
     public AgentMessage.Supplier getSupplier() {
         return supplier;
     }
@@ -370,6 +400,9 @@ public class ChatBot {
      * @return
      */
     public boolean isFileSizeValidHelper(long size, FileInfo.Mime_type m_type) {
+        if (supplier == null) {
+            return !(size>1.6e+7);
+        }
         switch (supplier) {
             case MAAP_SAMSUNG:
                 if (size > 8e+8) {
@@ -391,6 +424,12 @@ public class ChatBot {
         }
     }
 
+    /**
+     *
+     * @param richCardContent
+     * @return
+     * @throws IOException
+     */
     public boolean isValidRichCardContent(RichCardContent richCardContent) throws IOException{
         long size_1 = Util.getFileSize(richCardContent.getMedia().getFile().getFile_uri());
         long size_2 = Util.getFileSize(richCardContent.getMedia().getThumbnail().getFile_uri());
@@ -398,5 +437,40 @@ public class ChatBot {
             return false;
         }
         return true;
+    }
+
+    /**
+     * This function to check if all of the Suggested Actions are valid
+     * @param suggestedAction a suggested Action type
+     * @throws IOException
+     */
+    private void checkSuggestedActionsValid(SuggestedAction suggestedAction) throws IOException{
+        ActionType actionType = suggestedAction.getAction().getType();
+        switch (actionType) {
+            case open_url:
+                OpenUrl openUrl = (OpenUrl)suggestedAction.getAction();
+                if (openUrl.getUrl() == null){
+                    throw new IOException("URL must not be null");
+                }
+            case show_location:
+                ShowLocation showLocation = (ShowLocation)suggestedAction.getAction();
+                if (showLocation.getLatitude() < -90f  || showLocation.getLatitude() > 90f || showLocation.getLongitude() < -180f || showLocation.getLongitude() > 180f){
+                    throw new IOException("Latitude must be from -90 to 90, and Longitude must be from -180 to 180");
+                }
+                if (showLocation.getLabel() != null && showLocation.getLabel().length() > 1000){
+                    throw new IOException("Label of show location action must not exceed 1000 characters");
+                }
+            case dial_phone_number:
+                DialPhoneNumber dialPhoneNumber = (DialPhoneNumber) suggestedAction.getAction();
+                if (dialPhoneNumber.getPhoneNumber() == null){
+                    throw new IOException("Phone number must not be null");
+                }
+            case request_location_push:
+                break;
+            case create_calendar_event:
+               break;
+            default:
+                return;
+        }
     }
 }

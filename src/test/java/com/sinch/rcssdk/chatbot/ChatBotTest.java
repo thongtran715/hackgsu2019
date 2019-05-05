@@ -1,6 +1,7 @@
 package com.sinch.rcssdk.chatbot;
 import com.sinch.rcssdk.rcs.chatflow.ChatBot;
 import com.sinch.rcssdk.rcs.chatflow.RCSConfigureType;
+import com.sinch.rcssdk.rcs.exceptions.FileSizeExceedLimitException;
 import com.sinch.rcssdk.rcs.exceptions.MissingRichCardContentsException;
 import com.sinch.rcssdk.rcs.exceptions.MissingWidthTypeException;
 import com.sinch.rcssdk.rcs.message.component.richcard.FileInfo;
@@ -9,10 +10,14 @@ import com.sinch.rcssdk.rcs.message.component.richcard.RichCardMedia;
 import com.sinch.rcssdk.rcs.message.enums.MessageType;
 import com.sinch.rcssdk.rcs.message.enums.WidthType;
 import com.sinch.rcssdk.rcs.message.messagetype.AgentMessage;
+import com.sinch.rcssdk.rcs.message.messagetype.FileMessage;
 import com.sinch.rcssdk.rcs.message.messagetype.TextMessage;
+import javafx.util.Pair;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import static org.junit.Assert.*;
@@ -93,6 +98,31 @@ public class ChatBotTest {
 
     @Test
     public void testSendImageMessage() {
-
+        try {
+            FileMessage fileMessage = chatBot.sendImage( "+14047691562", "https://s3.amazonaws.com/sketchers-chatbot/Revision_1/Kid/Kids+Boys'+Sport/Boys'+Kinectors+Thermovolt.jpg");
+            assertEquals(fileMessage.getThumbnail().getFile_uri(), "https://s3.amazonaws.com/sketchers-chatbot/Revision_1/Kid/Kids+Boys'+Sport/Boys'+Kinectors+Thermovolt.jpg" );
+        }catch (FileSizeExceedLimitException e){
+            // File size limit the recommendation
+            System.out.println(e.getMessage());
+        }catch (IOException e){
+            // Unable to reach the url host
+            System.out.println(e.getMessage());
+        }
     }
+
+
+    @Test
+    @Deprecated
+    public void testSuggestionsChipSet(){
+        try {
+            String str = "12321321321332132132132132132132132321321321312312321312313131313";
+            List<Pair<String, String>> sug = new ArrayList<>();
+            sug.add(new Pair<>(str, "something"));
+            chatBot.setSuggestedReply(sug) ;
+        }catch (IOException e){
+            assertEquals(e.getMessage(), "Title exceed maximum length. It has to be 25 characters");
+        }
+    }
+
+
 }
