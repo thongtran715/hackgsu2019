@@ -8,6 +8,9 @@ import com.sinch.rcssdk.rcs.message.component.action.Action;
 import com.sinch.rcssdk.rcs.message.component.action.DialPhoneNumber;
 import com.sinch.rcssdk.rcs.message.component.action.OpenUrl;
 import com.sinch.rcssdk.rcs.message.component.action.ShowLocation;
+import com.sinch.rcssdk.rcs.message.component.agentevent.AgentComposingEvent;
+import com.sinch.rcssdk.rcs.message.component.agentevent.AgentEventSup;
+import com.sinch.rcssdk.rcs.message.component.agentevent.AgentReadEvent;
 import com.sinch.rcssdk.rcs.message.component.postback.PostBack;
 import com.sinch.rcssdk.rcs.message.component.richcard.FileInfo;
 import com.sinch.rcssdk.rcs.message.component.richcard.RichCardContent;
@@ -103,24 +106,26 @@ public class ChatBot {
             if (suggestions.size() > 11 ){
                 throw new IOException("Exceed the size of suggestion chip sets. It has to be 11 units");
             }
-            for (int i = 0; i < suggestions.size(); ++i) {
-                Pair<String, String> pair = suggestions.get(i);
+
+            for (Pair<String, String> pair: suggestions) {
                 int title = pair.getKey().length();
                 if (title > 25) {
                     throw new IOException("Display text exceed maximum length. It has to be 25 characters");
                 }
                 this.suggestions.add(new SuggestedReply(pair.getKey(), new PostBack(pair.getValue())));
             }
+
         }
         if (actions != null) {
 
-            for (int i = 0; i < actions.size(); ++i) {
-                if (actions.get(i).getDisplay_text().length() > 25){
+            for (SuggestedAction action: actions){
+                if (action.getDisplay_text().length() > 25){
                     throw new IOException("Display text exceed maximum length. It has to be 25 characters");
                 }
-                checkSuggestedActionsValid(actions.get(i));
-                this.suggestions.add(actions.get(i));
+                checkSuggestedActionsValid(action);
+                this.suggestions.add(action);
             }
+
         }
         return  this.suggestions;
     }
@@ -128,7 +133,7 @@ public class ChatBot {
     /**
      *
      * @param sugg Suggested Reply actions
-     * @return
+     * @return set of suggestions
      */
     public List<Suggestion> setSuggestedReply(List<Pair<String, String>> sugg) throws IOException{
         return this.setSuggestions(sugg ,null);
@@ -137,7 +142,7 @@ public class ChatBot {
     /**
      *
      * @param actions Suggested Actions
-     * @return
+     * @return set of suggestions
      */
     public List<Suggestion>  setSuggestedActions(List<SuggestedAction> actions) throws IOException{
             return this.setSuggestions(null, actions);
@@ -149,7 +154,7 @@ public class ChatBot {
      *
      * @param phoneNumber MSIDN Number
      * @param richCardContents List of rich cards that can go with the carousel model
-     * @return
+     * @return set of rich card contents
      */
     public List<RichCardContent> sendCarousel(String phoneNumber, List<RichCardContent> richCardContents) throws CarouselsSizeException {
         int size = richCardContents.size();
@@ -169,7 +174,7 @@ public class ChatBot {
      * @param phoneNumber MSIDN Number
      * @param richCardContents List of rich cards that can go with the carousel model
      * @param widthType With Type for each of the Rich Card. Including SMALL or MEDIUM
-     * @return
+     * @return set of rich card contents
      */
     public List<RichCardContent> sendCarousel(String phoneNumber, List<RichCardContent> richCardContents, WidthType widthType) {
         carouselRichCardMessage.setContents(richCardContents);
@@ -180,8 +185,8 @@ public class ChatBot {
     }
 
     /**
-     * @param phoneNumber
-     * @return
+     * @param phoneNumber phone number to send to
+     * @return set of rich card contents
      * @throws MissingRichCardContentsException It will throw exception if this can't find the objects of rich card
      * @throws MissingWidthTypeException It will throw exception if this can't find the Width Type identity
      */
@@ -209,7 +214,7 @@ public class ChatBot {
      * @param phoneNumber MSIDN Number
      * @param richCardContent Rich Card Content Object
      * @param orientationType The Orientation Type of the Rich Card including Horizontal and Vertical
-     * @return
+     * @return rich card content object
      */
     public RichCardContent sendRichCard(String phoneNumber, RichCardContent richCardContent, OrientationType orientationType, ThumbnailAlignmentType thumbnailAlignmentType) throws Exception{
         if (!isValidRichCardContent(richCardContent)){
@@ -227,7 +232,7 @@ public class ChatBot {
     /**
      * @param phoneNumber MSIDN Number
      * @param text Plain Text Message
-     * @return
+     * @return text message object
      */
     public TextMessage sendTextMessage(String phoneNumber, String text) {
         this.textMessage.setText(text);
@@ -239,7 +244,7 @@ public class ChatBot {
     /**
      * @param imageUrl Image URL that ends with PNG, JPEG, ...
      * @param phoneNumber MSIDN Number
-     * @return
+     * @return File message object
      */
     public FileMessage sendImage(String phoneNumber, String imageUrl) throws IOException, FileSizeExceedLimitException {
 
@@ -261,7 +266,7 @@ public class ChatBot {
      * @param phoneNumber MISDN Number
      * @param urlVideo Video source URL that ends with mp4
      * @param videoThumbnail Image URL that ends with PNG, JPEG, ...
-     * @return
+     * @return file message object
      */
     public FileMessage sendVideo(String phoneNumber, String urlVideo, String videoThumbnail) throws IOException, FileSizeExceedLimitException {
         // Check if the size is valid.
@@ -277,9 +282,40 @@ public class ChatBot {
         FileInfo thumbNail = new FileInfo(FileInfo.Mime_type.IMAGE_PNG, thumbnailSize, "picture.png", videoThumbnail);
         this.fileMessage.setThumbnail(thumbNail);
         this.fileMessage.setFile(fileInfo);
-        setAgentMessage(phoneNumber, this.fileMessage, null);
+        setAgentMessage(phoneNumber, this.fileMessage, null, this.supplier);
         sendPayLoad(agentMessage);
         return this.fileMessage;
+    }
+
+    /**
+     * This function will make the status of the message to be read
+     * @param uuid message ID
+     * @param from MSIDN number
+     */
+    public void agentReadEvent(String uuid, String from) {
+        AgentReadEvent agentReadEvent = new AgentReadEvent();
+        AgentEventSup agentEventSup = new AgentEventSup();
+        this.agentConfiguration.setType(RCSConfigureType.event);
+        agentReadEvent.setMessage_id(uuid);
+        agentEventSup.setEvent_id(UUID.randomUUID().toString());
+        agentEventSup.setTo(from);
+        agentEventSup.setEvent(agentReadEvent);
+        String payloadRead = agentEventSup.toString();
+        this.agentConfiguration.post(payloadRead);
+    }
+
+    /**
+     * This will enable the user composing
+     * @param phoneNumber phone number to send the request to
+     */
+    public void agentComposing(String phoneNumber){
+        AgentEventSup agentEventSup = new AgentEventSup();
+        this.agentConfiguration.setType(RCSConfigureType.event);
+        agentEventSup.setEvent(new AgentComposingEvent());
+        agentEventSup.setEvent_id(UUID.randomUUID().toString());
+        agentEventSup.setTo(phoneNumber);
+        System.out.println(agentEventSup.toString());
+        this.agentConfiguration.post(agentEventSup.toString());
     }
 
 
@@ -367,8 +403,8 @@ public class ChatBot {
     }
 
     /**
-     * @param richCardContents
-     * @return
+     * @param richCardContents set of rich card contents to be validated
+     * @return boolean
      */
     private boolean isRichCardsValid(List<RichCardContent> richCardContents) {
         int size = richCardContents.size();
@@ -388,6 +424,11 @@ public class ChatBot {
         return true;
     }
 
+    /**
+     *
+     * @param richCardContent a rich card content to be validated
+     * @return boolean
+     */
     public boolean isRichCardTitleAndDescriptionValid(RichCardContent richCardContent) {
         String title = richCardContent.getTitle();
         String description = richCardContent.getDescription();
@@ -397,7 +438,7 @@ public class ChatBot {
     /**
      * @param size Long type determines how big the size is
      * @param m_type Type of File size ( Video or Image)
-     * @return
+     * @return boolean
      */
     public boolean isFileSizeValidHelper(long size, FileInfo.Mime_type m_type) {
         if (supplier == null) {
@@ -409,12 +450,11 @@ public class ChatBot {
                     return false;
                 }
             case GOOGLE:
-                FileInfo.Mime_type mime_type = m_type;
-                if (mime_type == FileInfo.Mime_type.IMAGE_JPEG || mime_type == FileInfo.Mime_type.IMAGE_PNG) {
+                if (m_type == FileInfo.Mime_type.IMAGE_JPEG || m_type == FileInfo.Mime_type.IMAGE_PNG) {
                     if (size > 1.6e+7) {
                         return false;
                     }
-                } else if (mime_type == FileInfo.Mime_type.VIDEO_MP4) {
+                } else if (m_type == FileInfo.Mime_type.VIDEO_MP4) {
                     if (size > 8e+7) {
                         return false;
                     }
@@ -426,9 +466,9 @@ public class ChatBot {
 
     /**
      *
-     * @param richCardContent
-     * @return
-     * @throws IOException
+     * @param richCardContent a rich card content to be validated
+     * @return boolean
+     * @throws IOException throws the IO Exception if the file is not able to reach the source host
      */
     public boolean isValidRichCardContent(RichCardContent richCardContent) throws IOException{
         long size_1 = Util.getFileSize(richCardContent.getMedia().getFile().getFile_uri());
@@ -442,11 +482,14 @@ public class ChatBot {
     /**
      * This function to check if all of the Suggested Actions are valid
      * @param suggestedAction a suggested Action type
-     * @throws IOException
+     * @throws IOException throws the IO Exception if the type of input is incorrect
      */
     private void checkSuggestedActionsValid(SuggestedAction suggestedAction) throws IOException{
-        ActionType actionType = suggestedAction.getAction().getType();
-        switch (actionType) {
+        Action actionType = suggestedAction.getAction();
+        if (actionType == null){
+            throw new IOException("Null Pointer Exception for Action Type. Please set action type to SuggestedAction object");
+        }
+        switch (actionType.getType()) {
             case open_url:
                 OpenUrl openUrl = (OpenUrl)suggestedAction.getAction();
                 if (openUrl.getUrl() == null){

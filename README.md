@@ -48,6 +48,7 @@ That is it for the configuration. Now let's jump to how we can use this ChatBot 
 - [ Carousels Message](#carouselsMessage)
 - [ Suggestion Chip Sets](#suggestionChipSets)
 - [ Agent Events](#agentEvents)
+- [SMS FallBack](#fallbackSMS)
 ---
 
 <a name="textMessage"></a>
@@ -80,8 +81,55 @@ Sending image message requires an URI to host the file and it has mime type of p
 <a name="videoMessage"></a>
 ## Video Message
 
+```$xslt
+            String video = "https://s3.amazonaws.com/sketchers-chatbot/Video/Mark+Nason+Dress+Knit+Commercial.mp4";
+            String pig = "https://s3.amazonaws.com/sketchers-chatbot/Video/Picture1.png";
+            try {
+                chatBot.sendVideo("+14047691562", video, pig );
+            }catch (FileSizeExceedLimitException e){
+                System.out.println(e.getMessage());
+            }catch (IOException e){
+                System.out.println(e.getMessage());
+            }
+```
 <a name="standaloneMessage"></a>
 ## Standalone Message
+
+Standalone Rich Card has the following properties
+
+- File info 1: This file info indicates the type of the file that you wish to send out. 
+- File info 2: This file info is the thumbnail for the Rich Card 
+- Title: Title of the rich card. There are at most 200 characters 
+- Description: Description of Rich Card. There are at most 2000 characters
+- Suggestions Chip Sets: Optional - You can specify some buttons attach on the Rich Card
+- Orientation Type: There are HORIZONTAL , and VERTICAL orientation type of the Rich Card. 
+- Thumbnail Alignment: There are LEFT, and RIGHT alignment of the Rich Card for the HORIZONTAL Orientation
+- Vertical Rich Card Height: There are SHORT, MEDIUM , TALL for the VERTICAL Orientation Type
+
+Depend on the use cases, you can play around different type of Orientation and Thumbnail Alignment to fit your goal. However, the native software in the device will not scale the file properly for different type of orientation and thumbnail alignment. You should consider to design specific file for specific Rich Card. 
+
+```$xslt
+            String video = "https://s3.amazonaws.com/sketchers-chatbot/Video/Mark+Nason+Dress+Knit+Commercial.mp4";
+            String pig = "https://s3.amazonaws.com/sketchers-chatbot/Video/Picture1.png";
+            
+            // Setting the Rich Card Content object -
+            RichCardContent richCardContent = new RichCardContent();
+            // Video File  
+            FileInfo videoFile  = new FileInfo(FileInfo.Mime_type.VIDEO_MP4, "video.mp4" , video);
+            // Thumbnail Image
+            FileInfo videoImage = new FileInfo(FileInfo.Mime_type.IMAGE_PNG, "pig.png",pig);
+            // Set the Media type for the Rich Card along with Height Type
+            richCardContent.setMedia(new RichCardMedia(videoFile, videoImage, HeightType.SHORT));
+            
+            richCardContent.setTitle("Sinch hello");
+            richCardContent.setDescription("Hello From Sinch");
+
+            try {
+                chatBot.sendRichCard("+14047691562", richCardContent, OrientationType.VERTICAL, ThumbnailAlignmentType.LEFT);
+            }catch (Exception e){
+
+            }
+```
 
 <a name="carouselsMessage"></a>
 ## Carousel Message
@@ -131,6 +179,7 @@ Suggested Actions has the type of action, display text , post back and also it e
 
 <a name="dialPhoneNumber"></a>
 #### Dial Phone Number 
+- Phone number: Regex pattern ^(?:00|+|)[1-9][0-9]{8,16}$,  E.164 format 
 ```$xslt
             // List of actions
             List<SuggestedAction>  actions = new ArrayList<>();
@@ -236,6 +285,42 @@ With Request location push, we are asking users to share their location. Once, t
 
 <a name="createCalendarEvent"></a>
 #### Create Calendar Event 
+Create calendar event consists of 
+- Start_time and End_time: A timestamp in RFC3339 UTC “Zulu” format. Example: "2014-10-02T15:01:23.045123456Z"
+- Title: Event title. It ranges from 1 to 1024 characters
+- Description: Event description. Tt ranges from 1 to 1024 characters
+
+```$xslt
+            // List of actions
+            List<SuggestedAction>  actions = new ArrayList<>();
+
+            // Set display text as well as post-back data.
+            SuggestedAction createCalendarAction = new SuggestedAction("Save your calendar", null);
+
+            CreateCalendarEvent createCalendarEvent = new CreateCalendarEvent();
+            
+            // Choosing Date Format 
+            Date date = new Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("America/New_York"));
+            
+            // Setting attributes for calendar
+            createCalendarEvent.setDescription("Your package from Coffee");
+            createCalendarEvent.setTitle("Calendar");
+            createCalendarEvent.setStart_time(dateFormat.format(date));
+            createCalendarEvent.setEnd_time(dateFormat.format(date));
+            
+            // Setting action and add to the list
+            createCalendarAction.setAction(createCalendarEvent);
+            actions.add(createCalendarAction);
+
+            try{
+                chatBot.setSuggestedActions(actions);
+                chatBot.sendTextMessage("+14047691562", "Do you want to share your location?");
+            }catch (IOException e){
+                System.out.println(e.getMessage());
+            }
+```
 
 ---
 
@@ -250,8 +335,29 @@ Agent Event has the following feature
 <a name="agentComposing"></a>
 ### Agent Composing Event
 
+Agent composing will enable the ability for the bot to have the composing indication , and so increasing user-experience
+
+- Phone Number : Telling the bot which phone number it is sending the composing event to. Must not be null
+```$xslt
+            chatBot.agentComposing("+14047691562");
+```
+
 <a name="agentRead"></a>
 ### Agent Read Event  
+
+Agent Read Event will enable the bot to show the Read indication of the message that end-user is sending to.
+
+- Message ID: Must not null. Tell the bot which message it needs to mark as "Read"
+- From: Must not null. Tell the bot which phone number it needs to send to
+
+We obtain the Message ID via the call-back URL because everything interaction between end-user and the bot will go through the call-back URL. 
+
+```$xslt
+  chatBot.agentReadEvent("MESSAGEID","+14047691562" );
+```
+
+<a name="fallbackSMS"></a>
+## SMS Fallback
 
 ---
 

@@ -1,6 +1,9 @@
 package com.sinch.rcssdk.rcs.message.component.richcard;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sinch.rcssdk.rcs.util.Util;
+
+import java.io.IOException;
 
 public class FileInfo {
     @JsonIgnore
@@ -12,6 +15,18 @@ public class FileInfo {
     private String file_uri;
     public FileInfo() {
 
+    }
+
+    public FileInfo(Mime_type mime_type, String file_name, String file_uri){
+        try {
+            this.file_size = Util.getFileSize(file_uri);
+            this.file_name = file_name;
+            this.file_uri = file_uri;
+            this.mime = mime_type;
+            this.mime_type = mime_type.toString();
+        }catch (IOException e){
+            System.out.println(e.getMessage());
+        }
     }
 
     public FileInfo(Mime_type mime_type, long file_size, String file_name, String file_uri) {

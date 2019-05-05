@@ -11,11 +11,17 @@ import org.apache.http.util.EntityUtils;
 public abstract class AgentConfiguration {
 
     protected String TOKEN;
+
     protected String AGENT_ID;
+
     private String CONTENT_HEADER;
+
     private String AUTH_HEADER;
+
     private String BASE_API_URL;
+
     private String RCS_API_URL;
+
     private String RCS_EVENT_URL;
 
     private RCSConfigureType type;
@@ -28,6 +34,10 @@ public abstract class AgentConfiguration {
     }
 
     public AgentConfiguration(RCSConfigureType type) {
+        this.type = type;
+    }
+
+    public void setType(RCSConfigureType type) {
         this.type = type;
     }
 
@@ -49,6 +59,7 @@ public abstract class AgentConfiguration {
         return null;
     }
 
+
     private HttpResponse postRequestApi(String payload) {
         try {
             return postRequest(payload, RCS_API_URL);
@@ -56,6 +67,7 @@ public abstract class AgentConfiguration {
             return null;
         }
     }
+
 
     private HttpResponse postRequestAgent(String payload) {
         try {
