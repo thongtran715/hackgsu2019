@@ -6,7 +6,7 @@ import com.sinch.rcssdk.rcs.chatflow.RCSConfigureType;
 public class AgentConfig extends AgentConfiguration {
     public AgentConfig(RCSConfigureType type) {
         super(type);
-        this.TOKEN = "ZnsuiKQ2vqkn6lH99f2kLeWX";
-        this.AGENT_ID = "YfNeWmQ4SlzxXjbmv7KeNi6p";
+        this.TOKEN = "ZnsuiKQ2vqkn6lH99fadsda2kLeWX";
+        this.AGENT_ID = "YfNeWmQ4SlzxXjbdsadadamv7KeNi6p";
     }
 }
