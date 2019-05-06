@@ -138,6 +138,8 @@ Depend on the use cases, you can play around different type of Orientation and T
             }
 ```
 
+![Alt Text](https://media.giphy.com/media/IgXqPKkqvVdUvmiClu/giphy.gif)
+
 We can have at most 4 suggestion chip sets in rich card. Let's see how it is done
 
 ```javascript
