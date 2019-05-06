@@ -179,6 +179,8 @@ We can have at most 4 suggestion chip sets in rich card. Let's see how it is don
             }
 ```
 
+![Alt Text](https://media.giphy.com/media/YT8NO6g0egXTKd2hNr/giphy.gif)
+
 <a name="carouselsMessage"></a>
 ## Carousel Message
     
@@ -227,6 +229,8 @@ In another words, if you have really long title and description inside one of th
             }
 ```
 
+![Alt Text](https://media.giphy.com/media/ThpWyUbFQf6GwlCMf9/giphy.gif)
+
 
 <a name="suggestionChipSets"></a>
 ## Suggestion Chip Sets
@@ -260,6 +264,9 @@ In this library, we use Pair<String, String> with the key is display text and va
             }
 ```
 IO Exception will be thrown if the number of chip sets exceed 11 units or the length of display text exceed 25 characters. 
+
+![Alt Text](https://media.giphy.com/media/VJNxCksYQmtUBRqox6/giphy.gif)
+
 
 ### Suggested Actions
 
@@ -296,6 +303,9 @@ Suggested Actions has the type of action, display text , post back and also it e
                 System.out.println(e.getMessage());
             }
 ```
+
+![Alt Text](https://media.giphy.com/media/kBxHRWVUQ8H1tUZVcO/giphy.gif)
+
 <a name="showLocation"></a>
 #### Show Location
     
@@ -326,6 +336,8 @@ Show location instance contains the following attributes <br />
                 System.out.println(e.getMessage());
             }
 ```
+
+![Alt Text](https://media.giphy.com/media/eKPPa5P5OpB41pWkfJ/giphy.gif)
 
 <a name="requestLocationPush"></a>
 #### Request Location Push
