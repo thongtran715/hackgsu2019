@@ -61,6 +61,9 @@ Sending text message is simple. You will just need to have a phone number and th
   chatBot.sendTextMessage("+14047691562", "Hello from Sinch");
 ```
 
+![Alt Text](https://media.giphy.com/media/d9ZkSp2F6fwf8CWm05/giphy.gif)
+
+
 
 <a name="imageMessage"></a>
 ## Image Message
@@ -78,6 +81,8 @@ Sending image message requires an URI to host the file and it has mime type of p
             System.out.println(e.getMessage());
         }
 ```
+
+![Alt Text](https://media.giphy.com/media/QtkGNdfLXs6z7kHZ0A/giphy.gif)
 
 <a name="videoMessage"></a>
 ## Video Message
