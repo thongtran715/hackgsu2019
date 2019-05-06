@@ -363,6 +363,10 @@ With Request location push, we are asking users to share their location. Once, t
                 System.out.println(e.getMessage());
             }
 ```
+
+![Alt Text](https://media.giphy.com/media/hRyRSYmvZJDVC2ZeVk/giphy.gif)
+
+
 <a name="openURL"></a>
 #### Open URL
 
@@ -388,6 +392,7 @@ With Request location push, we are asking users to share their location. Once, t
                 System.out.println(e.getMessage());
             }
 ```
+![Alt Text](https://media.giphy.com/media/QX29XzKC1QXVMq3TRh/giphy.gif)
 
 <a name="createCalendarEvent"></a>
 #### Create Calendar Event 
@@ -427,8 +432,10 @@ Create calendar event consists of
                 System.out.println(e.getMessage());
             }
 ```
+![Alt Text](https://media.giphy.com/media/JoOyx4tUMAWhLqeSWf/giphy.gif)
 
 ---
+
 
 <a name="agentEvents"></a>
 ## Agent Events 
@@ -448,6 +455,9 @@ Agent composing will enable the ability for the bot to have the composing indica
             chatBot.agentComposing("+14047691562");
 ```
 
+![Alt Text](https://media.giphy.com/media/hRyRSYmvZJDVC2ZeVk/giphy.gif)
+
+
 <a name="agentRead"></a>
 ### Agent Read Event  
 
@@ -461,6 +471,9 @@ We obtain the Message ID via the call-back URL because everything interaction be
 ```javascript
   chatBot.agentReadEvent("MESSAGEID","+14047691562" );
 ```
+
+![Alt Text](https://media.giphy.com/media/hRyRSYmvZJDVC2ZeVk/giphy.gif)
+
 
 <a name="fallbackSMS"></a>
 ## SMS Fallback
