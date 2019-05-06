@@ -48,6 +48,7 @@ That is it for the configuration. Now let's jump to how we can use this ChatBot 
 - [ Carousels Message](#carouselsMessage)
 - [ Suggestion Chip Sets](#suggestionChipSets)
 - [ Agent Events](#agentEvents)
+- [ Revoke Messages](#revokemessage)
 - [SMS FallBack](#fallbackSMS)
 ---
 
@@ -127,12 +128,98 @@ Depend on the use cases, you can play around different type of Orientation and T
             try {
                 chatBot.sendRichCard("+14047691562", richCardContent, OrientationType.VERTICAL, ThumbnailAlignmentType.LEFT);
             }catch (Exception e){
+                // Catching the Exception here 
+                System.out.print(e.getMessage()); 
+            }
+```
 
+We can have at most 4 suggestion chip sets in rich card. Let's see how it is done
+
+```javascript
+            String video = "https://s3.amazonaws.com/sketchers-chatbot/Video/Mark+Nason+Dress+Knit+Commercial.mp4";
+            String pig = "https://s3.amazonaws.com/sketchers-chatbot/Video/Picture1.png";
+
+
+            RichCardContent richCardContent = new RichCardContent();
+            FileInfo videoFile  = new FileInfo(FileInfo.Mime_type.VIDEO_MP4, "video.mp4" , video);
+            FileInfo videoImage = new FileInfo(FileInfo.Mime_type.IMAGE_PNG, "pig.png",pig);
+            richCardContent.setMedia(new RichCardMedia(videoFile, videoImage, HeightType.SHORT));
+            richCardContent.setTitle("Sinch hello");
+            richCardContent.setDescription("Hello From Sinch");
+
+            // List of suggestions reply
+            List<Suggestion> suggestions = new ArrayList<>();
+
+            // Suggested Reply
+            suggestions.add(new SuggestedReply("Hello 1", new PostBack("asdasdadasda1221313"))) ;
+            suggestions.add(new SuggestedReply("Hello 4", new PostBack("asdasdadasda1221313"))) ;
+        
+            // Setting the suggestions in the rich card
+            richCardContent.setSuggestions(suggestions); 
+            
+            // Suggested Actions
+            SuggestedAction callUsAction = new SuggestedAction("Call Us Now", null);
+            // Set the Dial Phone Number
+            DialPhoneNumber dialPhoneNumber = new DialPhoneNumber("+14047691562");
+            callUsAction.setAction(dialPhoneNumber);
+
+            richCardContent.addSuggestion(callUsAction);
+            
+            try {
+                chatBot.sendRichCard("+14042329644", richCardContent, OrientationType.VERTICAL, ThumbnailAlignmentType.LEFT);
+            }catch (Exception e){
+                System.out.println();
             }
 ```
 
 <a name="carouselsMessage"></a>
 ## Carousel Message
+    
+Carousel Message is the list of standalone rich cards. Notice that Carousel has two main properties as follow
+- Width: The Width of the cards in the carousel 
+- Rich Card Contents: The list of the standalone rich card. There must be at least 2 and at most 10 rich cards in the carousel.  
+
+Also be notice that, in order to maintain Rendering Optimization, we would need you as a developer respect to limited resources natively in the device. 
+In another words, if you have really long title and description inside one of the rich cards, you should place that card to the first of carousel. 
+
+```javascript
+
+            String video = "https://s3.amazonaws.com/sketchers-chatbot/Video/Mark+Nason+Dress+Knit+Commercial.mp4";
+            String pig = "https://s3.amazonaws.com/sketchers-chatbot/Video/Picture1.png";
+
+
+            RichCardContent richCardContent = new RichCardContent();
+            FileInfo videoFile  = new FileInfo(FileInfo.Mime_type.VIDEO_MP4, "video.mp4" , video);
+            FileInfo videoImage = new FileInfo(FileInfo.Mime_type.IMAGE_PNG, "pig.png",pig);
+            richCardContent.setMedia(new RichCardMedia(videoFile, videoImage, HeightType.SHORT));
+            richCardContent.setTitle("Sinch hello");
+            richCardContent.setDescription("Hello From Sinch");
+
+            // List of suggestions reply
+            List<Suggestion> suggestions = new ArrayList<>();
+
+            // Suggested Reply
+            suggestions.add(new SuggestedReply("Hello 1", new PostBack("asdasdadasda1221313"))) ;
+            suggestions.add(new SuggestedReply("Hello 4", new PostBack("asdasdadasda1221313"))) ;
+
+            richCardContent.setSuggestions(suggestions);
+
+            List<RichCardContent> richCardContents = new ArrayList<>();
+            richCardContents.add(richCardContent);
+            richCardContents.add(richCardContent);
+            richCardContents.add(richCardContent);
+            richCardContents.add(richCardContent);
+            richCardContents.add(richCardContent);
+
+            chatBot.setRichCardContents(richCardContents);
+            chatBot.setWidthType(WidthType.MEDIUM);
+            try {
+                chatBot.sendCarousel("+14042329644");
+            }catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+```
+
 
 <a name="suggestionChipSets"></a>
 ## Suggestion Chip Sets
@@ -358,6 +445,22 @@ We obtain the Message ID via the call-back URL because everything interaction be
 
 <a name="fallbackSMS"></a>
 ## SMS Fallback
+
+<a name="revokemessage"></a>
+## Revoke Message
+
+Sometimes we send the messages to the handset with no status response. In this case, the Agent does not know whether the messages have been received to the user handset. Typically, each supplier will have different type of engine to 
+revoke the message after X amount of times. However, we have a control of our own to revoke the sent messages after X amount of times. 
+<br />
+Here is how it is done
+
+- Time out: Specify number of seconds for the message expire. 
+- Revoke: Boolean - Should the message be revoked when the timeout happens. If not, the message might still be delivered to the handset after the configured timeout. However, no further status updates will be sent by the system.	
+
+```javascript
+    chatBot.setExpireInfo(1000, true);
+    chatBot.sendTextMessage("+14047691562", "Hello from Sinch"); 
+```
 
 ---
 

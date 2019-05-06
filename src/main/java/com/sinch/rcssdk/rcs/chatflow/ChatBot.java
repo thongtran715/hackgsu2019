@@ -12,6 +12,7 @@ import com.sinch.rcssdk.rcs.message.component.agentevent.AgentComposingEvent;
 import com.sinch.rcssdk.rcs.message.component.agentevent.AgentEventSup;
 import com.sinch.rcssdk.rcs.message.component.agentevent.AgentReadEvent;
 import com.sinch.rcssdk.rcs.message.component.postback.PostBack;
+import com.sinch.rcssdk.rcs.message.component.richcard.ExpireInfo;
 import com.sinch.rcssdk.rcs.message.component.richcard.FileInfo;
 import com.sinch.rcssdk.rcs.message.component.richcard.RichCardContent;
 import com.sinch.rcssdk.rcs.message.component.suggestions.SuggestedAction;
@@ -52,6 +53,8 @@ public class ChatBot {
 
     private WidthType widthType;
 
+    private ExpireInfo expireInfo;
+
     public ChatBot(AgentConfiguration agentConfiguration) {
         textMessage = new TextMessage();
         carouselRichCardMessage = new CarouselRichCardMessage();
@@ -83,7 +86,9 @@ public class ChatBot {
         agentMessage.setTo(phone);
         agentMessage.setMessage(message);
         agentMessage.setSuggestions(suggestions);
+        agentMessage.setExpire(expireInfo);
     }
+
 
     /**
      * @param phone MSIDN Number
@@ -331,6 +336,23 @@ public class ChatBot {
      */
     public void setTextMessage(TextMessage textMessage) {
         this.textMessage = textMessage;
+    }
+
+    /**
+     *
+     * @param timeout number of time to revoke the message in hours
+     * @param revoke boolean is revoking
+     */
+    public void setExpireInfo(int timeout, boolean revoke)     {
+        if (expireInfo == null){
+            expireInfo = new ExpireInfo();
+        }
+        expireInfo.setRevoke(revoke);
+        expireInfo.setTimeout(timeout);
+    }
+
+    public void setExpireInfo(ExpireInfo expireInfo){
+        this.expireInfo = expireInfo;
     }
 
     public CarouselRichCardMessage getCarouselRichCardMessage() {

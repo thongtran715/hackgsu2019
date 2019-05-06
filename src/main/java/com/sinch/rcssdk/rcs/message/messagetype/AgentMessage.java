@@ -19,10 +19,15 @@ public class AgentMessage {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String to;
     @JsonInclude(JsonInclude.Include.NON_NULL)
+
     private Message message;
+
     private Supplier supplier;
+
     private List<Suggestion> suggestions;
+
     private ExpireInfo expire;
+
     private FallbackInfo fallback;
 
     public AgentMessage() {
