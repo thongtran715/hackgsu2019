@@ -12,7 +12,7 @@ import com.sinch.rcssdk.rcs.message.enums.WidthType;
 import com.sinch.rcssdk.rcs.message.messagetype.AgentMessage;
 import com.sinch.rcssdk.rcs.message.messagetype.FileMessage;
 import com.sinch.rcssdk.rcs.message.messagetype.TextMessage;
-import javafx.util.Pair;
+import com.sinch.rcssdk.rcs.util.Pair;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
