@@ -13,18 +13,19 @@ public class FileInfo {
     private long file_size;
     private String file_name;
     private String file_uri;
+
     public FileInfo() {
 
     }
 
-    public FileInfo(Mime_type mime_type, String file_name, String file_uri){
+    public FileInfo(Mime_type mime_type, String file_name, String file_uri) {
         try {
             this.file_size = Util.getFileSize(file_uri);
             this.file_name = file_name;
             this.file_uri = file_uri;
             this.mime = mime_type;
             this.mime_type = mime_type.toString();
-        }catch (IOException e){
+        } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }

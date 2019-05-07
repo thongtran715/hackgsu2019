@@ -12,7 +12,7 @@ public class ShowLocation extends Action {
         super(ActionType.show_location);
     }
 
-    public ShowLocation(float latitude, float longitude){
+    public ShowLocation(float latitude, float longitude) {
         super(ActionType.show_location);
         this.latitude = latitude;
         this.longitude = longitude;
