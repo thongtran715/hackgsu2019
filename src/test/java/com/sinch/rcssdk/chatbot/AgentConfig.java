@@ -7,6 +7,6 @@ public class AgentConfig extends AgentConfiguration {
     public AgentConfig(RCSConfigureType type) {
         super(type);
         this.TOKEN = "ZnsuiKQ2vqkn6lH99fadsda2kLeWX";
-        this.AGENT_ID = "YfNeWmQ4SlzxXjbdsadadamv7KeNi6p";
+        this.AGENT_ID = "dsa";
     }
 }

@@ -120,7 +120,7 @@ public class ChatBotTest {
             sug.add(new Pair<>(str, "something"));
             chatBot.setSuggestedReply(sug) ;
         }catch (IOException e){
-            assertEquals(e.getMessage(), "Title exceed maximum length. It has to be 25 characters");
+            assertEquals(e.getMessage(), "Display text exceed maximum length. It has to be 25 characters");
         }
     }
 
