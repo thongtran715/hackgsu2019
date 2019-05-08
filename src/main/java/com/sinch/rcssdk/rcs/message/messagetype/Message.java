@@ -1,9 +1,21 @@
 package com.sinch.rcssdk.rcs.message.messagetype;
 
-
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.sinch.rcssdk.rcs.message.Utils.UtilsToString;
 import com.sinch.rcssdk.rcs.message.enums.MessageType;
 
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+        property = "type"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = TextMessage.class, name = "text"),
+        @JsonSubTypes.Type(value = StandaloneRichCardMessage.class, name = "standalone_rich_card"),
+        @JsonSubTypes.Type(value = FileMessage.class, name = "file"),
+        @JsonSubTypes.Type(value = CarouselRichCardMessage.class, name = "carousel_rich_card")
+})
 public abstract class Message {
     private MessageType type;
 

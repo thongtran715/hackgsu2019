@@ -1,9 +1,10 @@
 package com.sinch.rcssdk.rcs.message.messagetype;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sinch.rcssdk.rcs.message.component.richcard.FileInfo;
 import com.sinch.rcssdk.rcs.message.enums.MessageType;
-
+@JsonIgnoreProperties({"type"})
 public class FileMessage extends Message {
 
     private FileInfo file;

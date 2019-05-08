@@ -1,12 +1,13 @@
 package com.sinch.rcssdk.rcs.message.messagetype;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sinch.rcssdk.rcs.message.component.richcard.RichCardContent;
 import com.sinch.rcssdk.rcs.message.enums.MessageType;
 import com.sinch.rcssdk.rcs.message.enums.WidthType;
 
 import java.util.List;
-
+@JsonIgnoreProperties({"type"})
 public class CarouselRichCardMessage extends Message {
 
     private WidthType width;

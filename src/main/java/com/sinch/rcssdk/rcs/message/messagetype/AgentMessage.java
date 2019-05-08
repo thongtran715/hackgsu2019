@@ -10,7 +10,6 @@ import com.sinch.rcssdk.rcs.message.component.suggestions.Suggestion;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class AgentMessage {
 

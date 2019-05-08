@@ -27,6 +27,7 @@ import com.sinch.rcssdk.rcs.util.Util;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -135,6 +136,27 @@ public class ChatBot {
     }
 
     /**
+     * This function will take a single suggested reply and call the set suggestions to add up to the list
+     *
+     * @param suggestedReply a suggested reply
+     * @return List of suggested replies
+     * @throws IOException
+     */
+    public List<Suggestion>  addSuggestedReply(Pair<String, String> suggestedReply) throws IOException{
+        return this.setSuggestions(Arrays.asList(suggestedReply), null);
+    }
+
+    /**
+     *
+     * @param suggestedAction
+     * @return
+     * @throws IOException
+     */
+    public List<Suggestion> addSuggestedAction(SuggestedAction suggestedAction) throws IOException{
+        return this.setSuggestions(null, Arrays.asList(suggestedAction));
+    }
+
+    /**
      * @param sugg Suggested Reply actions
      * @return set of suggestions
      */
@@ -218,7 +240,7 @@ public class ChatBot {
      * @param orientationType The Orientation Type of the Rich Card including Horizontal and Vertical
      * @return rich card content object
      */
-    public RichCardContent sendRichCard(String phoneNumber, RichCardContent richCardContent, OrientationType orientationType, ThumbnailAlignmentType thumbnailAlignmentType) throws Exception {
+    public AgentMessage sendRichCard(String phoneNumber, RichCardContent richCardContent, OrientationType orientationType, ThumbnailAlignmentType thumbnailAlignmentType) throws Exception {
         if (!isValidRichCardContent(richCardContent)) {
             throw new Exception("Rich Card invalid");
         }
@@ -227,7 +249,7 @@ public class ChatBot {
         standaloneRichCardMessage.setThumbnail_alignment(thumbnailAlignmentType);
         setAgentMessage(phoneNumber, standaloneRichCardMessage, this.suggestions, this.supplier);
         sendPayLoad(agentMessage);
-        return richCardContent;
+        return this.agentMessage;
     }
 
 
@@ -236,11 +258,11 @@ public class ChatBot {
      * @param text        Plain Text Message
      * @return text message object
      */
-    public TextMessage sendTextMessage(String phoneNumber, String text) {
+    public AgentMessage sendTextMessage(String phoneNumber, String text) {
         this.textMessage.setText(text);
         setAgentMessage(phoneNumber, this.textMessage, this.suggestions, this.supplier);
         sendPayLoad(agentMessage);
-        return this.textMessage;
+        return this.agentMessage;
     }
 
     /**
@@ -248,7 +270,7 @@ public class ChatBot {
      * @param phoneNumber MSIDN Number
      * @return File message object
      */
-    public FileMessage sendImage(String phoneNumber, String imageUrl) throws IOException, FileSizeExceedLimitException {
+    public AgentMessage sendImage(String phoneNumber, String imageUrl) throws IOException, FileSizeExceedLimitException {
 
         // Check if the size is valid.
         long size = Util.getFileSize(imageUrl);
@@ -261,7 +283,7 @@ public class ChatBot {
         this.fileMessage.setFile(fileInfo);
         setAgentMessage(phoneNumber, this.fileMessage, this.suggestions, this.supplier);
         sendPayLoad(agentMessage);
-        return this.fileMessage;
+        return this.agentMessage;
     }
 
     /**
@@ -295,7 +317,7 @@ public class ChatBot {
      * @param uuid message ID
      * @param from MSIDN number
      */
-    public void agentReadEvent(String uuid, String from) {
+    public AgentEventSup agentReadEvent(String uuid, String from) {
         AgentReadEvent agentReadEvent = new AgentReadEvent();
         AgentEventSup agentEventSup = new AgentEventSup();
         this.agentConfiguration.setType(RCSConfigureType.event);
@@ -305,6 +327,7 @@ public class ChatBot {
         agentEventSup.setEvent(agentReadEvent);
         String payloadRead = agentEventSup.toString();
         this.agentConfiguration.post(payloadRead);
+        return agentEventSup;
     }
 
     /**
@@ -312,14 +335,14 @@ public class ChatBot {
      *
      * @param phoneNumber phone number to send the request to
      */
-    public void agentComposing(String phoneNumber) {
+    public AgentEventSup agentComposing(String phoneNumber) {
         AgentEventSup agentEventSup = new AgentEventSup();
         this.agentConfiguration.setType(RCSConfigureType.event);
         agentEventSup.setEvent(new AgentComposingEvent());
         agentEventSup.setEvent_id(UUID.randomUUID().toString());
         agentEventSup.setTo(phoneNumber);
-        System.out.println(agentEventSup.toString());
         this.agentConfiguration.post(agentEventSup.toString());
+        return agentEventSup;
     }
 
 
@@ -521,7 +544,7 @@ public class ChatBot {
                 }
             case dial_phone_number:
                 DialPhoneNumber dialPhoneNumber = (DialPhoneNumber) suggestedAction.getAction();
-                if (dialPhoneNumber.getPhoneNumber() == null) {
+                if (dialPhoneNumber.getPhone_number() == null) {
                     throw new IOException("Phone number must not be null");
                 }
             case request_location_push:

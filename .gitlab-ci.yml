@@ -15,4 +15,4 @@ build_rcs_cis:
     paths:
       - build/
   script:
-    - ./gradlew clean build
+    - ./gradlew clean build sonarqube -Dsonar.gitlab.commit_sha=$CI_COMMIT_SHA -Dsonar.gitlab.ref_name=$CI_COMMIT_REF_NAME -Dsonar.gitlab.project_id=$CI_PROJECT_PATH -Dsonar.analysis.mode=preview -Dsonar.gitlab.json_mode=CODECLIMATE -Pcoverage

@@ -59,10 +59,6 @@ public class FileInfo {
         return file_size;
     }
 
-    public void setFile_size(int file_size) {
-        this.file_size = file_size;
-    }
-
     public void setFile_size(long file_size) {
         this.file_size = file_size;
     }

@@ -1,8 +1,10 @@
 package com.sinch.rcssdk.rcs.message.component.action;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sinch.rcssdk.rcs.message.enums.ActionType;
 
+@JsonIgnoreProperties({"type"})
 public class DialPhoneNumber extends Action {
 
     private String phone_number;
@@ -16,12 +18,11 @@ public class DialPhoneNumber extends Action {
         this.phone_number = phoneNumber;
     }
 
-    public String getPhoneNumber() {
-        return this.phone_number;
+    public String getPhone_number() {
+        return phone_number;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phone_number = phoneNumber;
+    public void setPhone_number(String phone_number) {
+        this.phone_number = phone_number;
     }
-
 }
