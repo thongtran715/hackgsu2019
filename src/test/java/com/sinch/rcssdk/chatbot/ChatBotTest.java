@@ -123,14 +123,14 @@ public class ChatBotTest {
     @Test
     public void testSendTextMessageWithSuggestions() throws Exception {
         AgentMessage expectedMessage = getMappedEntityAndAssertGeneralMapping("user_agent_message_text_suggestions.json", AgentMessage.class);
-        System.out.println(expectedMessage.toString());
+
         this.chatBot.addSuggestedReply(new Pair<>("Like", "feed1169-8500-4b66-a65c-5986b8ae59f7_LIKE"));
         this.chatBot.addSuggestedReply(new Pair<>("Stop please", "feed1169-8500-4b66-a65c-5986b8ae59f7_STOP"));
         SuggestedAction callUsAction = new SuggestedAction("Call us", new PostBack("feed1169-8500-4b66-a65c-5986b8ae59f7_CALL"));
-
         // Set the Dial Phone Number
         DialPhoneNumber dialPhoneNumber = new DialPhoneNumber("+46555123456");
         callUsAction.setAction(dialPhoneNumber);
+
         this.chatBot.addSuggestedAction(callUsAction);
 
         AgentMessage actualMessage = chatBot.sendTextMessage("46555123456", "Test message!");

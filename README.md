@@ -88,15 +88,19 @@ Sending image message requires an URI to host the file and it has mime type of p
 ## Video Message
 
 ```javascript
-            String video = "https://s3.amazonaws.com/sketchers-chatbot/Video/Mark+Nason+Dress+Knit+Commercial.mp4";
-            String pig = "https://s3.amazonaws.com/sketchers-chatbot/Video/Picture1.png";
-            try {
-                chatBot.sendVideo("+14047691562", video, pig );
-            }catch (FileSizeExceedLimitException e){
-                System.out.println(e.getMessage());
-            }catch (IOException e){
-                System.out.println(e.getMessage());
-            }
+
+        String MEN_VIDEO_SELECTED = "https://s3.amazonaws.com/sketchers-chatbot/Video/Skechers+RCS+Chatbot+Video+Revisions+Assets+4.19.19/Mens+Tony+Romo+for+Skechers+Slip-ons.mp4";
+        String MEN_THUMBNAIL_SELECTED = "https://s3.amazonaws.com/sketchers-chatbot/Video/Skechers+RCS+Chatbot+Video+Revisions+Assets+4.19.19/Video+Revisions+Thumbnails/man.png";
+        chatBot.setSupplier(AgentMessage.Supplier.MAAP_SAMSUNG);
+        try {
+            chatBot.sendVideo("14047691562", MEN_VIDEO_SELECTED, "fadsa.mp4", MEN_THUMBNAIL_SELECTED, "image.png");
+        }catch (FileSizeExceedLimitException e)
+        {
+            e.printStackTrace();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        
 ```
 <a name="standaloneMessage"></a>
 ## Standalone Message
@@ -177,6 +181,7 @@ We can have at most 4 suggestion chip sets in rich card. Let's see how it is don
             }catch (Exception e){
                 System.out.println();
             }
+     
 ```
 
 ![Alt Text](https://media.giphy.com/media/YT8NO6g0egXTKd2hNr/giphy.gif)
@@ -262,6 +267,10 @@ In this library, we use Pair<String, String> with the key is display text and va
             }catch (IOException e){
                 System.out.println(e.getMessage());
             }
+            
+                   
+            // Clear all the suggestions if you happen do not need it anymore for further usage
+            chatBot.clearSuggestionsChip();
 ```
 IO Exception will be thrown if the number of chip sets exceed 11 units or the length of display text exceed 25 characters. 
 
@@ -302,6 +311,9 @@ Suggested Actions has the type of action, display text , post back and also it e
             }catch (IOException e){
                 System.out.println(e.getMessage());
             }
+            
+            // Clear all the suggestions if you happen do not need it anymore for further usage
+            chatBot.clearSuggestionsChip();
 ```
 
 ![Alt Text](https://media.giphy.com/media/kBxHRWVUQ8H1tUZVcO/giphy.gif)
@@ -335,6 +347,9 @@ Show location instance contains the following attributes <br />
             }catch (IOException e){
                 System.out.println(e.getMessage());
             }
+            
+            // Clear all the suggestions if you happen do not need it anymore for further usage
+            chatBot.clearSuggestionsChip();
 ```
 
 ![Alt Text](https://media.giphy.com/media/eKPPa5P5OpB41pWkfJ/giphy.gif)

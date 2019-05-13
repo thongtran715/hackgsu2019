@@ -74,7 +74,6 @@ public class ChatBot {
         agentMessage.setMessage_id(UUID.randomUUID().toString());
         HttpResponse httpResponse = agentConfiguration.post(agentMessage.toString());
         System.out.println(agentMessage.toString());
-        clearSuggestionsChip();
         return httpResponse;
     }
 
@@ -327,7 +326,7 @@ public class ChatBot {
         standaloneRichCardMessage.setContent(richCardContent);
         standaloneRichCardMessage.setOrientation(OrientationType.VERTICAL);
         standaloneRichCardMessage.setThumbnail_alignment(ThumbnailAlignmentType.LEFT);
-        setAgentMessage(phoneNumber, this.fileMessage, null, this.supplier);
+        setAgentMessage(phoneNumber, this.standaloneRichCardMessage, null, this.supplier);
         sendPayLoad(agentMessage);
         return richCardContent;
     }
@@ -555,6 +554,7 @@ public class ChatBot {
                 if (openUrl.getUrl() == null) {
                     throw new IOException("URL must not be null");
                 }
+                break;
             case show_location:
                 ShowLocation showLocation = (ShowLocation) suggestedAction.getAction();
                 if (showLocation.getLatitude() < -90f || showLocation.getLatitude() > 90f || showLocation.getLongitude() < -180f || showLocation.getLongitude() > 180f) {
@@ -563,11 +563,13 @@ public class ChatBot {
                 if (showLocation.getLabel() != null && showLocation.getLabel().length() > 1000) {
                     throw new IOException("Label of show location action must not exceed 1000 characters");
                 }
+                break;
             case dial_phone_number:
                 DialPhoneNumber dialPhoneNumber = (DialPhoneNumber) suggestedAction.getAction();
                 if (dialPhoneNumber.getPhone_number() == null) {
                     throw new IOException("Phone number must not be null");
                 }
+                break;
             case create_calendar_event:
                 CreateCalendarEvent calendarEvent = (CreateCalendarEvent) suggestedAction.getAction();
                 if (calendarEvent.getTitle().isEmpty() || calendarEvent.getTitle().length() > 1024 || calendarEvent.getTitle().length() < 1) {
@@ -576,9 +578,27 @@ public class ChatBot {
                 if (calendarEvent.getDescription().isEmpty() || calendarEvent.getDescription().length()> 1024 || calendarEvent.getDescription().length()< 1){
                     throw new IOException("Calendar description is required. The length is from 1 to 1024 characters");
                 }
+                break;
 
             default:
                 break;
         }
+    }
+
+
+    private List<Suggestion> cloneSuggestions(){
+        List<Suggestion> newSugg = new ArrayList<>();
+        for (Suggestion suggestion : this.suggestions) {
+            newSugg.add(suggestion);
+        }
+        return newSugg;
+    }
+
+
+    public static void main(String[] args) {
+        int x = 4;
+        int y = x;
+        x = 3;
+        System.out.println(y);
     }
 }
