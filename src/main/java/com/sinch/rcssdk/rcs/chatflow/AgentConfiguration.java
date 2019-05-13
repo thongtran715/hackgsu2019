@@ -53,10 +53,8 @@ public abstract class AgentConfiguration {
         setUpBase();
         if (this.type == RCSConfigureType.api) {
             return postRequestApi(payload);
-        } else if (this.type == RCSConfigureType.event) {
-            return postRequestAgent(payload);
         }
-        return null;
+            return postRequestAgent(payload);
     }
 
 
@@ -64,6 +62,7 @@ public abstract class AgentConfiguration {
         try {
             return postRequest(payload, RCS_API_URL);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return null;
         }
     }
@@ -73,23 +72,21 @@ public abstract class AgentConfiguration {
         try {
             return postRequest(payload, RCS_EVENT_URL);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return null;
         }
     }
 
     private HttpResponse postRequest(String payload, String url) throws Exception {
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+      CloseableHttpClient httpClient = HttpClients.createDefault();
             HttpPost request = new HttpPost(url);
             request.setHeader("Authorization", AUTH_HEADER);
             request.setHeader("Content-Type", CONTENT_HEADER);
             request.setEntity(new StringEntity(payload));
-            httpClient.execute(request, response -> {
-                System.out.println("Response status code: " + response.getStatusLine().getStatusCode());
-                System.out.println("Response: " + EntityUtils.toString(response.getEntity()));
-                return response;
-            });
-        }
-        return null;
+            HttpResponse response =  httpClient.execute(request);
+            System.out.println("Response: " + EntityUtils.toString(response.getEntity()));
+            System.out.println("Status Code: " + response.getStatusLine().getStatusCode());
+            return response;
     }
 
 

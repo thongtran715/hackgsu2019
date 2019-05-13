@@ -4,10 +4,7 @@ import com.sinch.rcssdk.rcs.exceptions.CarouselsSizeException;
 import com.sinch.rcssdk.rcs.exceptions.FileSizeExceedLimitException;
 import com.sinch.rcssdk.rcs.exceptions.MissingRichCardContentsException;
 import com.sinch.rcssdk.rcs.exceptions.MissingWidthTypeException;
-import com.sinch.rcssdk.rcs.message.component.action.Action;
-import com.sinch.rcssdk.rcs.message.component.action.DialPhoneNumber;
-import com.sinch.rcssdk.rcs.message.component.action.OpenUrl;
-import com.sinch.rcssdk.rcs.message.component.action.ShowLocation;
+import com.sinch.rcssdk.rcs.message.component.action.*;
 import com.sinch.rcssdk.rcs.message.component.agentevent.AgentComposingEvent;
 import com.sinch.rcssdk.rcs.message.component.agentevent.AgentEventSup;
 import com.sinch.rcssdk.rcs.message.component.agentevent.AgentReadEvent;
@@ -15,15 +12,18 @@ import com.sinch.rcssdk.rcs.message.component.postback.PostBack;
 import com.sinch.rcssdk.rcs.message.component.richcard.ExpireInfo;
 import com.sinch.rcssdk.rcs.message.component.richcard.FileInfo;
 import com.sinch.rcssdk.rcs.message.component.richcard.RichCardContent;
+import com.sinch.rcssdk.rcs.message.component.richcard.RichCardMedia;
 import com.sinch.rcssdk.rcs.message.component.suggestions.SuggestedAction;
 import com.sinch.rcssdk.rcs.message.component.suggestions.SuggestedReply;
 import com.sinch.rcssdk.rcs.message.component.suggestions.Suggestion;
+import com.sinch.rcssdk.rcs.message.enums.HeightType;
 import com.sinch.rcssdk.rcs.message.enums.OrientationType;
 import com.sinch.rcssdk.rcs.message.enums.ThumbnailAlignmentType;
 import com.sinch.rcssdk.rcs.message.enums.WidthType;
 import com.sinch.rcssdk.rcs.message.messagetype.*;
 import com.sinch.rcssdk.rcs.util.Pair;
 import com.sinch.rcssdk.rcs.util.Util;
+import org.apache.http.HttpResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,22 +66,24 @@ public class ChatBot {
     }
 
     /**
+     * Make http request to Rcs API Gateway
      * @param agentMessage AgentMessage object
      */
 
-    // Make http request to Rcs API Gateway
-    private void sendPayLoad(AgentMessage agentMessage) {
+    private HttpResponse sendPayLoad(AgentMessage agentMessage) {
         agentMessage.setMessage_id(UUID.randomUUID().toString());
-        agentConfiguration.post(agentMessage.toString());
+        HttpResponse httpResponse = agentConfiguration.post(agentMessage.toString());
         System.out.println(agentMessage.toString());
+        clearSuggestionsChip();
+        return httpResponse;
     }
 
     /**
+     * Setting the Agent Message Object
      * @param phone       MSIDN number
      * @param message     Message object
      * @param suggestions List of suggestions that can go with particular message. Including Suggested Reply and Actions
      */
-    // Setting the Agent Message Object
     private void setAgentMessage(String phone, Message message, List<Suggestion> suggestions) {
         agentMessage.setTo(phone);
         agentMessage.setMessage(message);
@@ -144,6 +146,14 @@ public class ChatBot {
      */
     public List<Suggestion>  addSuggestedReply(Pair<String, String> suggestedReply) throws IOException{
         return this.setSuggestions(Arrays.asList(suggestedReply), null);
+    }
+
+    /**
+     *  Clear the suggesiton chip sets.
+     */
+    public void clearSuggestionsChip() {
+        if (this.suggestions != null)
+            this.suggestions.clear();
     }
 
     /**
@@ -287,12 +297,17 @@ public class ChatBot {
     }
 
     /**
-     * @param phoneNumber    MISDN Number
-     * @param urlVideo       Video source URL that ends with mp4
-     * @param videoThumbnail Image URL that ends with PNG, JPEG, ...
-     * @return file message object
+     * Send video using Rich Card with file only. There is no title, description and suggestions. Only the file name
+     * @param phoneNumber MSIDN to send
+     * @param urlVideo Video url file
+     * @param videoName the name of the video
+     * @param videoThumbnail Thumbnail for the video
+     * @param thumbnailName Thumbnail image name
+     * @return Rich Card Content
+     * @throws IOException
+     * @throws FileSizeExceedLimitException
      */
-    public FileMessage sendVideo(String phoneNumber, String urlVideo, String videoThumbnail) throws IOException, FileSizeExceedLimitException {
+    public RichCardContent sendVideo(String phoneNumber, String urlVideo, String videoName, String videoThumbnail, String thumbnailName) throws IOException, FileSizeExceedLimitException {
         // Check if the size is valid.
         long thumbnailSize = Util.getFileSize(videoThumbnail);
         if (!isFileSizeValidHelper(thumbnailSize, FileInfo.Mime_type.IMAGE_JPEG)) {
@@ -302,13 +317,19 @@ public class ChatBot {
         if (!isFileSizeValidHelper(videoSize, FileInfo.Mime_type.VIDEO_MP4)) {
             throw new FileSizeExceedLimitException(supplier, videoSize);
         }
-        FileInfo fileInfo = new FileInfo(FileInfo.Mime_type.VIDEO_MP4, videoSize, "picture.mp4", urlVideo);
-        FileInfo thumbNail = new FileInfo(FileInfo.Mime_type.IMAGE_PNG, thumbnailSize, "picture.png", videoThumbnail);
-        this.fileMessage.setThumbnail(thumbNail);
-        this.fileMessage.setFile(fileInfo);
+
+        RichCardContent richCardContent = new RichCardContent();
+        RichCardMedia media = new RichCardMedia();
+        media.setHeight(HeightType.MEDIUM);
+        media.setFile(new FileInfo(FileInfo.Mime_type.VIDEO_MP4, videoSize, videoName, urlVideo));
+        media.setThumbnail(new FileInfo(FileInfo.Mime_type.IMAGE_PNG, thumbnailSize, thumbnailName, videoThumbnail));
+        richCardContent.setMedia(media);
+        standaloneRichCardMessage.setContent(richCardContent);
+        standaloneRichCardMessage.setOrientation(OrientationType.VERTICAL);
+        standaloneRichCardMessage.setThumbnail_alignment(ThumbnailAlignmentType.LEFT);
         setAgentMessage(phoneNumber, this.fileMessage, null, this.supplier);
         sendPayLoad(agentMessage);
-        return this.fileMessage;
+        return richCardContent;
     }
 
     /**
@@ -547,10 +568,15 @@ public class ChatBot {
                 if (dialPhoneNumber.getPhone_number() == null) {
                     throw new IOException("Phone number must not be null");
                 }
-            case request_location_push:
-                break;
             case create_calendar_event:
-                break;
+                CreateCalendarEvent calendarEvent = (CreateCalendarEvent) suggestedAction.getAction();
+                if (calendarEvent.getTitle().isEmpty() || calendarEvent.getTitle().length() > 1024 || calendarEvent.getTitle().length() < 1) {
+                    throw new IOException("Calendar Title is required. The length is from 1 to 1024 characters");
+                }
+                if (calendarEvent.getDescription().isEmpty() || calendarEvent.getDescription().length()> 1024 || calendarEvent.getDescription().length()< 1){
+                    throw new IOException("Calendar description is required. The length is from 1 to 1024 characters");
+                }
+
             default:
                 break;
         }
