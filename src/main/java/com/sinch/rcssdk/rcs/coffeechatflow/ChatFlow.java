@@ -56,6 +56,7 @@ public class ChatFlow {
 
 
     public void handlePostback(String postback, String phoneNumber){
+        Util.agentComposing(phoneNumber);
         List<Pair<String, String>> suggestions = new ArrayList<>();
         List<SuggestedAction> actions = new ArrayList<>();
         List<Item> addedItem = new ArrayList<>();
@@ -145,7 +146,17 @@ public class ChatFlow {
         }
         return null;
     }
+    private Item findItemByName(String productName){
+        for (String name: map.keySet()){
+            List<Item> items = map.get(name);
+            for (Item item : items)
+                if (item.title.equalsIgnoreCase(productName) || item.title.contains(productName))return item;
+        }
+        return null;
+    }
     public void handleTextMessage(String text, String phoneNumber){
+
+        Util.agentComposing(phoneNumber);
         List<Pair<String, String>> suggestions = new ArrayList<>();
         List<SuggestedAction> actions = new ArrayList<>();
         if (text.equalsIgnoreCase("hello")) {
@@ -229,8 +240,40 @@ public class ChatFlow {
     }
 
 
-    public void sendBooksItems(String phoneNumber){
+    public void showItemsBasedOnName(String productName, String phoneNumber){
+        for (String name : map.keySet()){
+            if (name.equalsIgnoreCase(productName)){
+                List<Item> items = map.get(name);
+                try {
+                    carouselHelper(phoneNumber, items, null, null);
+                }
+                catch (Exception e){
+                    System.out.print(e.getMessage());
+                }
+                return;
+            }
+        }
+    }
 
+    public boolean addToCart(List<Integer> numbers, List<String> products, String phoneNumber){
+        if (!map.containsKey(phoneNumber))
+            map.put(phoneNumber, new ArrayList<>());
+        for (int i = 0 ; i < products.size(); ++i){
+            Item item = findItemByName(products.get(i));
+            if (item == null) return false;
+            for (int k = 0; k < numbers.get(i); ++k )
+                map.get(phoneNumber).add(item);
+        }
+        String fullfil = "Thank you! You have ordered ";
+        for (int i = 0 ; i < products.size();++i){
+            if (i != products.size() -1)
+            fullfil += (numbers.get(i) + " " + products.get(i) + " and ");
+            else
+                fullfil += (numbers.get(i) + " " + products.get(i));
+        }
+        chatBot.sendTextMessage(fullfil, phoneNumber);
+//        handlePostback("show_cart", phoneNumber);
+        return true;
     }
 
     public void sendMessage(String text, String phoneNumber){

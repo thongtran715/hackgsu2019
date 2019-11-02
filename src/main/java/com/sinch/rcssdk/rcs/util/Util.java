@@ -3,6 +3,7 @@ package com.sinch.rcssdk.rcs.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sinch.rcssdk.rcs.chatflow.RCSConfigureType;
 import com.sinch.rcssdk.rcs.configuration.RcsAgentConfiguration;
+import com.sinch.rcssdk.rcs.message.component.agentevent.AgentComposingEvent;
 import com.sinch.rcssdk.rcs.message.component.agentevent.AgentEventSup;
 import com.sinch.rcssdk.rcs.message.component.agentevent.AgentReadEvent;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -100,5 +101,15 @@ public class Util {
             e.printStackTrace();
         }
 
+    }
+
+        public static void agentComposing(String phoneNumber) {
+        AgentEventSup agentEventSup = new AgentEventSup();
+        RcsAgentConfiguration post = new RcsAgentConfiguration(RCSConfigureType.event);
+        agentEventSup.setEvent(new AgentComposingEvent());
+        agentEventSup.setEvent_id(UUID.randomUUID().toString());
+        agentEventSup.setTo(phoneNumber);
+        System.out.println(agentEventSup.toString());
+        post.post(agentEventSup.toString());
     }
 }

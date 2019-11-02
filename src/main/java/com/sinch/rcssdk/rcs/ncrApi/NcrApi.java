@@ -12,10 +12,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 
 public class NcrApi {
@@ -178,10 +175,14 @@ public class NcrApi {
     public static void main(String[] args) {
         NcrApi ncrApi  = new NcrApi();
         try{
-            Orders orders = new Orders();
-            String payload = orders.toString();
-            System.out.println(payload);
-            ncrApi.makeOrder(payload);
+
+            Map<String, List<Item>> map = ncrApi.getAllItems();
+
+                for (Item item : map.get("ESPRESSO")) {
+                    System.out.println(item.title);
+                }
+
+
 
         }
         catch (Exception e){

@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -104,13 +106,41 @@ public class MessageController {
 
             JSONObject contexts = (JSONObject) ja.get(0);
 
-            String fullfill = queryResult.getString("fulfillmentText");
-
             String phoneNumber = ((JSONObject) contexts.get("parameters")).getString("phoneNumber");
 
-            if (parameters.has("number"))
-                this.chatFlow.sendMessage(fullfill, phoneNumber);
+
+            System.out.println(parameters);
+            if (parameters.has("number") && !(parameters.get("number") instanceof String)){
+
+                List<Integer> quantities = new ArrayList<>();
+
+                String toStart = "number";
+                while(parameters.has(toStart)){
+                     if(!(parameters.get(toStart) instanceof String))
+                        quantities.add(parameters.getInt(toStart));
+                    toStart += "1";
+                }
+
+                List<String>  products = new ArrayList<>();
+                JSONArray array = parameters.getJSONArray(intent);
+
+                for (int i = 0; i < array.length(); ++i){
+                    String product = array.getString(i);
+                    products.add(product);
+                }
+                if (!chatFlow.addToCart(quantities, products, phoneNumber)){
+                    chatFlow.sendMessage("One of the item is not listed",phoneNumber);
+                    return new ResponseEntity("Bad request" , HttpStatus.BAD_REQUEST);
+                }
+
+
+            }
             else if (intent.equalsIgnoreCase("Brewed Coffee")){
+                chatFlow.showItemsBasedOnName(intent, phoneNumber);
+            }else if (intent.equalsIgnoreCase("show_my_cart")){
+                chatFlow.showItemsBasedOnName(intent, phoneNumber);
+            }else if (intent.equalsIgnoreCase("Espresso")){
+                chatFlow.showItemsBasedOnName(intent, phoneNumber);
             }
         }
         return new ResponseEntity("Created ", HttpStatus.ACCEPTED);
