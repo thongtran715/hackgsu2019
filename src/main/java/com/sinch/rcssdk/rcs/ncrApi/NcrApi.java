@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 
 public class NcrApi {
@@ -104,9 +105,26 @@ public class NcrApi {
         return map;
     }
 
+    public HashMap<String, List<Item>> showTopTenOrders() throws Exception {
+        HashMap<String, List<Item>> topTen = new HashMap<>();
+        try {
+            Random rand = new Random();
+            HashMap<String, List<Item>> allItems = getAllItems();
+            String[] keys = (String[]) allItems.keySet().toArray();
+            while (topTen.size() <= 10) {
+                String key = keys[rand.nextInt(keys.length)];
+                topTen.put(key, allItems.get(key));
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return topTen;
+
+    }
+
+
     public Store getStore() throws Exception{
       String token = this.getToken();
-
       HttpGet request = new HttpGet("https://api-reg.ncrsilverlab.com/v2/stores");
         // add request headers
         request.addHeader("Content-Type", "application/json");

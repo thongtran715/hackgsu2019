@@ -38,7 +38,7 @@ public class ChatFlow {
     private List<Category> categories;
     private Store store;
     private HashMap<String, List<Item>> map;
-    private List<Item> carts;
+    private static HashMap<String, List<Item>> carts = new HashMap<>();
 
     public ChatFlow() {
         chatBot = new ChatBot(new RcsAgentConfiguration(RCSConfigureType.api));
@@ -52,13 +52,13 @@ public class ChatFlow {
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
-        carts = new ArrayList<>();
     }
 
 
     public void handlePostback(String postback, String phoneNumber){
         List<Pair<String, String>> suggestions = new ArrayList<>();
         List<SuggestedAction> actions = new ArrayList<>();
+        List<Item> addedItem = new ArrayList<>();
         if (postback.equalsIgnoreCase("show_categories")){
             try {
                 int size = categories.size();
@@ -108,7 +108,12 @@ public class ChatFlow {
         }else if (postback.contains(ADD_TO_CART)){
             String productId = postback.substring(ADD_TO_CART.length());
             Item item  = findItem(productId);
-            carts.add(item);
+            if (!carts.containsKey(phoneNumber)) {
+                carts.put(phoneNumber, addedItem);
+                addedItem.add(addedItem.size(), item);
+            } else {
+                carts.get(phoneNumber).add(addedItem.size(), item);
+            }
             chatBot.sendTextMessage(phoneNumber, "This item is added");
             suggestions.add(new Pair<>("Show cart", "show_cart"));
             suggestions.add(new Pair<>("Show categories", "show_categories"));
@@ -123,7 +128,7 @@ public class ChatFlow {
                 suggestions.add(new Pair<>("Show cart", "show_cart"));
             suggestions.add(new Pair<>("Show categories", "show_categories"));
             this.chatBot.setSuggestions(suggestions, null);
-            carouselHelper(phoneNumber, carts, null, null);
+            carouselHelper(phoneNumber, carts.get(phoneNumber), null, null);
             }catch (Exception e) {
                 System.out.println(e.getLocalizedMessage());
             }
