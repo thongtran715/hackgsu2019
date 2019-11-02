@@ -1,11 +1,11 @@
 package com.sinch.rcssdk.rcs.ncrApi;
 
-import com.sinch.rcssdk.rcs.model.Category;
-import com.sinch.rcssdk.rcs.model.Item;
-import com.sinch.rcssdk.rcs.model.Store;
+import com.sinch.rcssdk.rcs.model.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -63,7 +63,6 @@ public class NcrApi {
                     Object pr = resultArray.get(i);
                     if (pr.equals(null)) continue;
                     JSONObject obj = (JSONObject)pr;
-                    System.out.println(obj.getString("CategoryName"));
                     categories.add(new Category(obj.getString("CategoryName"))) ;
                 }
             }
@@ -75,7 +74,7 @@ public class NcrApi {
 
         HashMap<String, List<Item>> map = new HashMap<>();
         String token = getToken();
-        HttpGet request = new HttpGet("https://api-reg.ncrsilverlab.com/v2/inventory/items");
+        HttpGet request = new HttpGet("https://api-reg.ncrsilverlab.com/v2/inventory/items?limit=10000");
 
         // add request headers
         request.addHeader("Content-Type", "application/json");
@@ -88,16 +87,23 @@ public class NcrApi {
                 String result = EntityUtils.toString(entity);
                 JSONObject object = new JSONObject(result);
                 JSONArray resultArray = object.getJSONArray("Result");
+
                 for (int i = 0; i < resultArray.length(); ++i){
+
+                    if (resultArray.get(i).equals(null)) continue;
                     JSONObject obj = (JSONObject)resultArray.get(i);
+
                     String name = obj.getString("Name");
-                    String description = obj.getString("Description");
+                    String description = "";
+                    if (!obj.get("Description").equals(null))
+                        description = obj.getString("Description");
                     String cost = String.valueOf(obj.getDouble("Cost"));
                     String category = obj.getString("ItemCategoryName");
                     String itemId = String.valueOf(obj.getInt("ItemMasterId"));
                     if (!map.containsKey(category))
                         map.put(category, new ArrayList<>());
                     map.get(category).add(new Item(name, description, cost, "https://rcs-barcelona-demo.s3.amazonaws.com/rcs-coffee/Caramel+Pumpkin+Spice+Latte+.jpg", category, itemId));
+
                 }
             }
         }
@@ -132,17 +138,36 @@ public class NcrApi {
     }
 
 
+    public boolean makeOrder(String payload) throws Exception {
+      String token = this.getToken();
+
+          HttpPost request = new HttpPost("https://api-reg.ncrsilverlab.com/v2/orders?store_number=1");
+        // add request headers
+        request.addHeader("Content-Type", "application/json");
+        request.addHeader("Authorization", "Bearer " + token);
+        request.setEntity(new StringEntity(payload));
+        try (CloseableHttpResponse response = httpClient.execute(request)) {
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                System.out.println(entity);
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public static void main(String[] args) {
         NcrApi ncrApi  = new NcrApi();
         try{
+            Orders orders = new Orders();
+            String payload = orders.toString();
+            System.out.println(payload);
+            ncrApi.makeOrder(payload);
 
-            Store store = ncrApi.getStore();
-            System.out.println(store.phoneNumber);
-            System.out.println(store.storeName);
         }
         catch (Exception e){
-            System.out.println(e.getMessage());
+            System.out.println("Some thing wrong");
         }
 
     }

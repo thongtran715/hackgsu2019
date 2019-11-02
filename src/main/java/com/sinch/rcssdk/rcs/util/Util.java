@@ -1,5 +1,6 @@
 package com.sinch.rcssdk.rcs.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sinch.rcssdk.rcs.chatflow.RCSConfigureType;
 import com.sinch.rcssdk.rcs.configuration.RcsAgentConfiguration;
 import com.sinch.rcssdk.rcs.message.component.agentevent.AgentEventSup;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class Util {
@@ -68,4 +70,35 @@ public class Util {
         return (String) jsonObject.get("address");
     }
 
+    public static JSONObject getIntent(String payload) throws Exception {
+        String result;
+        String url = "http://0.0.0.0:4041/api/diagflow/intent";
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPost request = new HttpPost(url);
+        request.setHeader("Content-Type", "application/json");
+        request.setEntity(new StringEntity(payload));
+        CloseableHttpResponse response = client.execute(request);
+        try {
+            result = EntityUtils.toString(response.getEntity());
+        } finally {
+            response.close();
+        }
+        JSONObject jsonObject = new JSONObject(result);
+        return jsonObject;
+    }
+
+    public static void main(String[] args) {
+        HashMap<String, String> map = new HashMap<>();
+        ObjectMapper mapper = new ObjectMapper();
+        map.put("text", "I want some books");
+        map.put("phone", "14047691562");
+        try {
+            String j = mapper.writeValueAsString(map);
+            System.out.println(getIntent(j));
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
 }

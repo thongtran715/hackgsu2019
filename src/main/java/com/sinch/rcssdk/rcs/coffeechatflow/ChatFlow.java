@@ -223,4 +223,13 @@ public class ChatFlow {
         this.chatBot.clearSuggestionsChip();
     }
 
+
+    public void sendBooksItems(String phoneNumber){
+
+    }
+
+    public void sendMessage(String text, String phoneNumber){
+        this.chatBot.sendTextMessage(phoneNumber, text);
+    }
+
 }
