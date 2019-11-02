@@ -7,7 +7,7 @@ public class YourBotConfiguration extends AgentConfiguration {
 
     public YourBotConfiguration(RCSConfigureType type) {
         super(type);
-        this.TOKEN = "w2L4hTjRU99ksykf7vMRUHmY";
-        this.AGENT_ID = "1";
+        this.TOKEN = "ArvD8fUSscR1C2xnHtGSXCEz";
+        this.AGENT_ID = "foaNWDXzClXPLk35";
     }
 }

@@ -20,6 +20,8 @@ Otherwise, feel free to use our sample bot which is already integrating in the l
 ## Configuration 
 You will need to tell our library which bot you are using including the Agent ID and Token ID. <br />
 Let's create a configuration class which is called YourBotConfiguration and extends it from ChatAgentConfiguration
+<br/>
+Important: Not all test phone numbers are working with test bot unless the bot is approved for production. You will need to contact us to have the phone whitelisted. 
 ```javascript
 public class YourBotConfiguration extends AgentConfiguration {
 

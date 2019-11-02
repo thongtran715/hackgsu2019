@@ -104,7 +104,7 @@ public class AgentMessage {
     }
 
     public enum Supplier {
-        GOOGLE("GOOGLE"), MAAP_SAMSUNG("MAAP_SAMSUNG");
+        GOOGLE("GOOGLE"), MAAP_SAMSUNG("MAAP_SAMSUNG"), MAAP_TMOBILE("MAAP_TMOBILE");
         private String supply;
 
         Supplier(String supply) {

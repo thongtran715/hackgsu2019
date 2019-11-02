@@ -1,0 +1,1 @@
+alias push="heroku deploy:jar build/libs/*.jar --app mwc-2019"

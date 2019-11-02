@@ -44,6 +44,9 @@ public abstract class AgentConfiguration {
     private void setUpBase() {
         this.CONTENT_HEADER = "application/json";
         this.AUTH_HEADER = "Bearer " + this.TOKEN;
+        // Staging URL
+//        this.BASE_API_URL = "https://api-eu1tst.clxcommunications.com/rcs/v1/" + AGENT_ID  ;
+//         Production URL
         this.BASE_API_URL = "https://api.clxcommunications.com/rcs/v1/" + AGENT_ID;
         this.RCS_API_URL = BASE_API_URL + "/messages";
         this.RCS_EVENT_URL = BASE_API_URL + "/events";
@@ -57,7 +60,6 @@ public abstract class AgentConfiguration {
             return postRequestAgent(payload);
     }
 
-
     private HttpResponse postRequestApi(String payload) {
         try {
             return postRequest(payload, RCS_API_URL);
@@ -66,7 +68,6 @@ public abstract class AgentConfiguration {
             return null;
         }
     }
-
 
     private HttpResponse postRequestAgent(String payload) {
         try {
@@ -86,6 +87,7 @@ public abstract class AgentConfiguration {
             HttpResponse response =  httpClient.execute(request);
             System.out.println("Response: " + EntityUtils.toString(response.getEntity()));
             System.out.println("Status Code: " + response.getStatusLine().getStatusCode());
+            System.out.println(response.getStatusLine());
             return response;
     }
 

@@ -218,7 +218,7 @@ public class ChatBot {
     }
 
     /**
-     * @param phoneNumber phone number to send to
+     * @param phoneNumber phone number to to
      * @return set of rich card contents
      * @throws MissingRichCardContentsException It will throw exception if this can't find the objects of rich card
      * @throws MissingWidthTypeException        It will throw exception if this can't find the Width Type identity
@@ -326,7 +326,7 @@ public class ChatBot {
         standaloneRichCardMessage.setContent(richCardContent);
         standaloneRichCardMessage.setOrientation(OrientationType.VERTICAL);
         standaloneRichCardMessage.setThumbnail_alignment(ThumbnailAlignmentType.LEFT);
-        setAgentMessage(phoneNumber, this.standaloneRichCardMessage, null, this.supplier);
+        setAgentMessage(phoneNumber, this.standaloneRichCardMessage, this.suggestions, this.supplier);
         sendPayLoad(agentMessage);
         return richCardContent;
     }
@@ -359,7 +359,6 @@ public class ChatBot {
         AgentEventSup agentEventSup = new AgentEventSup();
         this.agentConfiguration.setType(RCSConfigureType.event);
         agentEventSup.setEvent(new AgentComposingEvent());
-        agentEventSup.setEvent_id(UUID.randomUUID().toString());
         agentEventSup.setTo(phoneNumber);
         this.agentConfiguration.post(agentEventSup.toString());
         return agentEventSup;
@@ -592,13 +591,5 @@ public class ChatBot {
             newSugg.add(suggestion);
         }
         return newSugg;
-    }
-
-
-    public static void main(String[] args) {
-        int x = 4;
-        int y = x;
-        x = 3;
-        System.out.println(y);
     }
 }
